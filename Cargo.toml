@@ -1,8 +1,13 @@
-
+#
 # Generated with:
 #
 #       $ cargo init
-#       
+#
+# Add a dependency:
+#
+#       $ argo install cargo-watch
+#
+#
 
 [package]
 name = "rust-experiments"
