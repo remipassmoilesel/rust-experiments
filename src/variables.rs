@@ -1,6 +1,5 @@
 
-
-fn main() {
+pub fn main() {
 
     let i = 0;
     let mut j = 2; j += 2;
@@ -9,7 +8,7 @@ fn main() {
     let l = 10i32;
 
     // no warning here because of _
-    let _unusedVariable = 3;
+    let _unused_variable = 3;
 
     let tab = &[0, 1, 2];
 
