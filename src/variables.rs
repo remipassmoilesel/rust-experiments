@@ -29,4 +29,16 @@ pub fn main() {
     let c = 'z';
     let z = 'ℤ';
     let heart_eyed_cat = '😻';
+
+    let x = "Test string"; // literal string are immutable
+    let x = String::from("Test string");
+
+    // Slices
+    let s = String::from("hello");
+
+    let len = s.len();
+
+    let slice = &s[3..len];
+    let slice = &s[3..];
+
 }

@@ -10,9 +10,15 @@ pub fn main() {
         }
     }
 
-    let anonym_function = |i: i32| {
-      i * 2
+    let anonym_function = |i: i32| -> i32 {
+        i * 2
     };
 
-    println!("{}", anonym_function(4))
+    println!("{}", anonym_function(4));
+
+    fn multiple_results() -> (i32, i32) {
+        (1, 2)
+    }
+
+
 }

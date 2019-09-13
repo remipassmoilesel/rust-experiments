@@ -1,4 +1,7 @@
 pub fn main() {
+
+    // Loops
+
     let mut i: i32 = 0;
     loop {
         i += 1;
@@ -6,6 +9,21 @@ pub fn main() {
             break;
         }
     }
+
+    let var = loop {
+        break i += 1;
+    };
+
+    // While
+
+    let mut number = 3;
+    while number != 0 {
+        println!("{}!", number);
+
+        number -= 1;
+    }
+
+    // For
 
     let range = 0..10;
 
@@ -27,5 +45,11 @@ pub fn main() {
 
     for (i, value) in v.iter().enumerate() {
         println!("i = {} et value = \"{}\"", i, value);
+    }
+
+    let a = [10, 20, 30, 40, 50];
+
+    for element in a.iter() {
+        println!("the value is: {}", element);
     }
 }
