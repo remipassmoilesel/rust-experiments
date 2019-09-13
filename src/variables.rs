@@ -1,8 +1,7 @@
-
 pub fn main() {
-
     let i = 0;
-    let mut j = 2; j += 2;
+    let mut j = 2;
+    j += 2;
 
     let k: i32 = 0;
     let l = 10i32;
@@ -12,4 +11,22 @@ pub fn main() {
 
     let tab = &[0, 1, 2];
 
+    const MAX_POINTS: u32 = 100_000;
+
+    // Shadowing is allowed
+    let x = 5;
+    let x = x + 1;
+    let x = x * 2;
+
+    // overflows break build unless you annotate it
+    let mut i: i8 = 0;
+    #[allow(overflowing_literals)]
+    while i < 300 {
+        i = i + 1;
+        println!("{}", i)
+    }
+
+    let c = 'z';
+    let z = 'ℤ';
+    let heart_eyed_cat = '😻';
 }

@@ -1,5 +1,4 @@
 pub fn main() {
-
     fn get_bigger(nb1: i32, nb2: i32) -> i32 {
         match nb1 {
             x if x > nb2 => {
@@ -11,6 +10,9 @@ pub fn main() {
         }
     }
 
-    
+    let anonym_function = |i: i32| {
+      i * 2
+    };
 
+    println!("{}", anonym_function(4))
 }
