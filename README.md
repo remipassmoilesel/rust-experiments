@@ -5,5 +5,6 @@ Reading:
 
 See: 
 - https://doc.rust-lang.org/book/
+- https://doc.rust-lang.org/stable/std/
 - https://blog.guillaume-gomez.fr/Rust/
 - https://www.youtube.com/watch?v=vOMJlQ5B-M0&list=PLVvjrrRCBy2JSHf9tGxGKJ-bYAN_uDCUL

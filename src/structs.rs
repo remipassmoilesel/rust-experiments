@@ -9,6 +9,8 @@ pub fn main() {
         active: bool,
     }
 
+    struct Value; // unit struct
+
     // Struct value
 
     let user1 = User {
@@ -99,6 +101,6 @@ pub fn main() {
             Rectangle { width: size, height: size }
         }
     }
-    
+
     println!("{:?}", Rectangle::square(25));
 }
