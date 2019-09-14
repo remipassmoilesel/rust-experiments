@@ -5,6 +5,7 @@ mod loops;
 mod functions;
 mod operations;
 mod ownership;
+mod structs;
 
 fn main() {
 //    conditions::main();
@@ -12,5 +13,6 @@ fn main() {
 //    loops::main();
 //    functions::main();
 //    operations::main();
-    ownership::main();
+//    ownership::main();
+    structs::main();
 }
