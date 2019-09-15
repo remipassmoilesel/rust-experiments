@@ -7,9 +7,10 @@ mod operations;
 mod ownership;
 mod structs;
 mod enums;
+mod module_system;
 
 fn main() {
-    conditions::main();
+//    conditions::main();
 //    variables::main();
 //    loops::main();
 //    functions::main();
@@ -17,4 +18,5 @@ fn main() {
 //    ownership::main();
 //    structs::main();
 //    enums::main();
+    module_system::main();
 }
