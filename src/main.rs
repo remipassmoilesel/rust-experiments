@@ -1,22 +1,15 @@
+use basics::*;
 
-mod conditions;
-mod variables;
-mod loops;
-mod functions;
-mod operations;
-mod ownership;
-mod structs;
-mod enums;
-mod module_system;
+mod basics;
 
 fn main() {
-//    conditions::main();
-//    variables::main();
-//    loops::main();
-//    functions::main();
-//    operations::main();
-//    ownership::main();
-//    structs::main();
-//    enums::main();
+    conditions::main();
+    variables::main();
+    loops::main();
+    functions::main();
+    operations::main();
+    ownership::main();
+    structs::main();
+    enums::main();
     module_system::main();
 }

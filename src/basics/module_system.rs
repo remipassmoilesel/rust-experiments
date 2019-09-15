@@ -66,16 +66,18 @@ pub fn main() {
 //            // --snip--
 //        }
 //
-
-
-    // Nested paths, that:
-    use std::{cmp::Ordering, io};
-    use std::io::{self, Write};
-
-    // is equivalent to that
-    use std::cmp::Ordering;
-    use std::io;
-
-    // Glob operators:
-    use std::collections::*;
+//
+//        Nested paths, that:
+//
+//        use std::{cmp::Ordering, io};
+//        use std::io::{self, Write};
+//
+//        ...is equivalent to that
+//
+//        use std::cmp::Ordering;
+//        use std::io;
+//
+//        Glob operators:
+//        use std::collections::*;
+//
 }
