@@ -31,3 +31,9 @@ Build:
 
     $ cago build
     $ cago build --release
+    
+
+Debug:
+
+    $ export RUST_BACKTRACE=1
+    $ cargo run
