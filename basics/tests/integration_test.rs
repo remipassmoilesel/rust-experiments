@@ -1,3 +1,5 @@
+// Current project must be load as an external crate
+// as `tests` directory have a special build configuration.
 extern crate basics;
 
 use basics::*;
