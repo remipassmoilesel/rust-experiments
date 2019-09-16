@@ -66,4 +66,10 @@ pub fn main() {
         SpreadsheetCell::Float(10.12),
     ];
 
+    // Slice of vector
+
+    let v = vec![100, 32, 57];
+    println!("{:?}", &v[1..]);
+    println!("{:?}", &v[1..2]);
+    println!("{:?}", &v[..2]);
 }
