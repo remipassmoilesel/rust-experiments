@@ -5,7 +5,7 @@ use clap::{App, Arg, SubCommand};
 fn main() {
 
     let matches = App::new("Memo !")
-        .version("0.1")
+        .version("0.0.1")
         .author("Rémi Passmoilesel<r.passmoilesel@protonmail.com")
         .about("Store CLI commands !")
         .arg(Arg::with_name("add")
