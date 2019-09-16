@@ -1,10 +1,10 @@
 
 [package]
-name = "rust-experiments"
+name = "basics"
 version = "0.1.0"
 authors = ["Rémi Passmoilesel <r.passmoilesel@protonmail.com>"]
 edition = "2018"
-default-run = "rust-experiments"
+default-run = "basics"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

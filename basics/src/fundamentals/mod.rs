@@ -1,6 +1,5 @@
 
-// This file is used to export resource from this module
-
+pub mod collections;
 pub mod conditions;
 pub mod enums;
 pub mod functions;
@@ -11,4 +10,3 @@ pub mod ownership;
 pub mod structs;
 pub mod tuples;
 pub mod variables;
-pub mod collections;
