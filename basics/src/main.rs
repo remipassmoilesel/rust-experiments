@@ -2,7 +2,7 @@ use basics::*;
 use crate::tokio_network::*;
 
 mod basics;
-mod tests;
+mod testing;
 mod tokio_network;
 
 fn main() {

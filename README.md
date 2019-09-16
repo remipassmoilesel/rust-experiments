@@ -37,3 +37,9 @@ Debug:
 
     $ export RUST_BACKTRACE=1
     $ cargo run
+    
+
+Test:
+
+    $ cargo test 
+    $ cargo test -- --nocapture # do not capture prinln!() output
