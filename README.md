@@ -10,7 +10,7 @@ See:
 - https://www.youtube.com/watch?v=vOMJlQ5B-M0&list=PLVvjrrRCBy2JSHf9tGxGKJ-bYAN_uDCUL
 
 
-## Cargo commands
+## Miscellaneous commands
 
 Init a directory:
 
@@ -43,3 +43,8 @@ Test:
 
     $ cargo test 
     $ cargo test -- --nocapture # do not capture prinln!() output
+
+
+Update Rust:
+
+    $ rustup update
