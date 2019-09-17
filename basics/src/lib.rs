@@ -20,7 +20,9 @@ pub fn main() {
     // module_system::main();
     // collections::main();
     // client::main();
-    error_handling::main();
-    args::main();
-    files::main();
+    //error_handling::main();
+    //args::main();
+    //files::main();
+    genericity::main();
+    traits::main();
 }
