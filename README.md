@@ -45,6 +45,11 @@ Test:
     $ cargo test -- --nocapture # do not capture prinln!() output
 
 
+Reformat:
+
+    $ cargo fmt
+    
+
 Update Rust:
 
     $ rustup update
