@@ -1,4 +1,3 @@
-
 pub fn main() {
     let age: i32 = 17;
 
@@ -8,16 +7,12 @@ pub fn main() {
         println!("mineur !");
     }
 
-    let val = if age >= 18 {
-        "majeur !"
-    } else {
-        "mineur !"
-    };
+    let val = if age >= 18 { "majeur !" } else { "mineur !" };
 
     let my_string = "hello";
     match my_string {
         "bonjour" => println!("français"),
-        _ => println!("je ne connais pas cette langue...")
+        _ => println!("je ne connais pas cette langue..."),
     }
 
     let value = match my_string {
@@ -29,7 +24,7 @@ pub fn main() {
 
     let age = match age {
         x if x > 15 && x > 18 => "ado !",
-        _ => "mineur !"
+        _ => "mineur !",
     };
 
     let maybe_number = Option::Some(50);
@@ -41,7 +36,7 @@ pub fn main() {
     fn option_plus_5(number: Option<i32>) -> Option<i32> {
         match number {
             Some(i) => Option::Some(i + 5),
-            _ => None
+            _ => None,
         }
     }
 
@@ -57,7 +52,6 @@ pub fn main() {
 
     match y {
         Some(3) => println!("{:?}", y),
-        _ => ()
+        _ => (),
     }
-
 }

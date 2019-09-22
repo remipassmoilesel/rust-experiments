@@ -2,8 +2,8 @@
 // as `tests` directory have a special build configuration.
 extern crate basics;
 
-use basics::*;
 use basics::testing::calculator::Calculator;
+use basics::*;
 
 mod common;
 

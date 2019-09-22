@@ -1,5 +1,4 @@
 pub fn main() {
-
     // Struct definition
 
     struct User {
@@ -69,15 +68,22 @@ pub fn main() {
         height: u32,
     }
 
-    let rect1 = Rectangle { width: 25, height: 25 };
-    let rect2 = Rectangle { width: 20, height: 20 };
-    println!("rect1 is {:?}", rect1);   // one line output
+    let rect1 = Rectangle {
+        width: 25,
+        height: 25,
+    };
+    let rect2 = Rectangle {
+        width: 20,
+        height: 20,
+    };
+    println!("rect1 is {:?}", rect1); // one line output
     println!("rect1 is  {:#?}", rect1); // multiple lines output
 
     // Add methods on struct
 
     impl Rectangle {
-        fn area(&self) -> u32 {     // self can take ownership or borrow mutability too
+        fn area(&self) -> u32 {
+            // self can take ownership or borrow mutability too
             self.width * self.height
         }
 
@@ -98,7 +104,10 @@ pub fn main() {
 
     impl Rectangle {
         fn square(size: u32) -> Rectangle {
-            Rectangle { width: size, height: size }
+            Rectangle {
+                width: size,
+                height: size,
+            }
         }
     }
 

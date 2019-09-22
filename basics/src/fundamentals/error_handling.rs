@@ -1,8 +1,7 @@
 use std::fs::File;
 use std::io::ErrorKind as FileErrorKind;
 
-pub fn main(){
-
+pub fn main() {
     // For unrecoverable, will clean memory and display an error message
     // panic!("Panic message");
 
@@ -10,10 +9,10 @@ pub fn main(){
     #[derive(Debug)]
     enum UselessErrorKind {
         NumberTooHigh,
-        NumberTooLow
+        NumberTooLow,
     }
 
-    fn do_something(x: &i32) -> Result<i32, UselessErrorKind>{
+    fn do_something(x: &i32) -> Result<i32, UselessErrorKind> {
         match x {
             x if x < &10 => Err(UselessErrorKind::NumberTooLow),
             x if x > &10 && x < &100 => Ok(x * 25),
@@ -36,8 +35,8 @@ pub fn main(){
         Ok(file) => println!("File found: \n\n{:?}", file),
         Err(error) => match error.kind() {
             FileErrorKind::NotFound => eprintln!("File not found: {:?}", error.kind()),
-            _ => eprintln!("Unknown error: {:?}", error)
-        }
+            _ => eprintln!("Unknown error: {:?}", error),
+        },
     }
 
     // More concise way to do the same thing
@@ -58,5 +57,4 @@ pub fn main(){
 
     let f = File::open("Cargo.toml").unwrap();
     let f = File::open("Cargo.toml").expect("Panic message"); // same as unwrap but with message
-
 }

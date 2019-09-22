@@ -1,5 +1,4 @@
 pub fn main() {
-
     // MOVE
 
     let s1 = String::from("hello");
@@ -53,5 +52,4 @@ pub fn main() {
         let second_mutable_ref = &mut a;
     }
     println!("{}", a);
-
 }

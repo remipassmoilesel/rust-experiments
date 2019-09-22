@@ -40,5 +40,4 @@ pub fn main() {
 
     let slice = &s[3..len];
     let slice = &s[3..];
-
 }

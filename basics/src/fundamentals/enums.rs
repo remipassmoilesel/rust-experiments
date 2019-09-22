@@ -29,5 +29,4 @@ pub fn main() {
     impl Message {
         fn call(&self) {}
     }
-
 }
