@@ -1,5 +1,10 @@
 use std::env;
 
+use argument_parser::ArgumentParser;
+use argument_parser::CliCommand;
+
+mod argument_parser;
+
 fn banner() {
     println!(
         "
@@ -10,11 +15,12 @@ fn banner() {
     )
 }
 
-fn parse_arguments(args: Vec<String>) {
-    println!("{:?}", args);
-}
-
 pub fn main() {
     banner();
-    parse_arguments(env::args().collect());
+    let command = ArgumentParser::parse(env::args().collect());
+    match command {
+        Some(CliCommand::AddMemo { memo, description }) => println!("add: {} {}", memo, description),
+        Some(CliCommand::SearchMemo { query }) => println!("search: {}", query),
+        _ => println!("Invalid command"),
+    }
 }
