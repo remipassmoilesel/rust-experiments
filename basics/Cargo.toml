@@ -9,3 +9,4 @@ default-run = "basics"
 
 [dependencies]
 tokio = "0.1"
+clap = "2.33.0"
