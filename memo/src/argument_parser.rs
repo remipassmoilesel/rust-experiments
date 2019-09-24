@@ -1,3 +1,4 @@
+#[derive(Debug, PartialEq)]
 pub enum CliCommand {
     AddMemo { memo: String, description: String },
     SearchMemo { query: String },
@@ -6,7 +7,7 @@ pub enum CliCommand {
 
 pub struct ArgumentParser {}
 
-impl<'a> ArgumentParser {
+impl ArgumentParser {
     pub fn parse(args: Vec<String>) -> CliCommand {
         let clean_args: Vec<&str> = args.iter().map(|arg| arg.trim()).collect();
 
@@ -32,5 +33,16 @@ impl<'a> ArgumentParser {
                 message: String::from("Invalid command, try memo --help"),
             },
         }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn no_arguments_should_return_error() {
+        assert_eq!(ArgumentParser::parse(vec!()), CliCommand::InvalidCommand { message: String::from("Invalid command, try memo --help") });
     }
 }
