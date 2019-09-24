@@ -53,3 +53,8 @@ Reformat:
 Update Rust:
 
     $ rustup update
+
+
+Fix:
+
+    $ cargo fix
