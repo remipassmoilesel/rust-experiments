@@ -1,6 +1,5 @@
-
 use std::fs;
-use std::io::{ErrorKind};
+use std::io::ErrorKind;
 
 pub fn read_file(filepath: &String) -> Result<String, String> {
     let result = fs::read_to_string(filepath).map_err(|err| err.kind());

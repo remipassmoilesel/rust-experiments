@@ -1,5 +1,8 @@
-pub fn search<'a>(_needle: &str, _haystack: &'a str) -> Vec<&'a str> {
-    vec!()
+pub fn search<'a>(needle: &str, haystack: &'a str) -> Vec<&'a str> {
+    return haystack
+        .lines()
+        .filter(|line| line.contains(needle))
+        .collect();
 }
 
 #[cfg(test)]
@@ -28,7 +31,12 @@ mod tests {
         They'd banish us, you know.
           ";
 
-        assert_eq!(search("nobody", haystack), vec!("        I'm nobody! Who are you?", "        Are you nobody, too?"));
+        assert_eq!(
+            search("nobody", haystack),
+            vec!(
+                "        I'm nobody! Who are you?",
+                "        Are you nobody, too?"
+            )
+        );
     }
-
 }
