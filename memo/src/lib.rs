@@ -19,10 +19,8 @@ pub fn main() {
     banner();
     let command = ArgumentParser::parse(env::args().collect());
     match command {
-        CliCommand::AddMemo { memo, description } => {
-            println!("add: {} {}", memo, description)
-        },
+        CliCommand::AddMemo { memo, description } => println!("add: {} {}", memo, description),
         CliCommand::SearchMemo { query } => println!("search: {}", query),
-        _ => println!("Invalid command"),
+        CliCommand::InvalidCommand { message } => println!("Invalid command: {}", message),
     }
 }

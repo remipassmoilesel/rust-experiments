@@ -1,19 +1,36 @@
-pub enum CliCommand<'a> {
-    AddMemo { memo: &'a str, description: &'a str },
-    SearchMemo { query: &'a str },
-    InvalidCommand { message: &'a str },
+pub enum CliCommand {
+    AddMemo { memo: String, description: String },
+    SearchMemo { query: String },
+    InvalidCommand { message: String },
 }
 
 pub struct ArgumentParser {}
 
 impl<'a> ArgumentParser {
-    pub fn parse(args: Vec<String>) -> CliCommand<'a> {
+    pub fn parse(args: Vec<String>) -> CliCommand {
         let clean_args: Vec<&str> = args.iter().map(|arg| arg.trim()).collect();
 
         match clean_args.get(1) {
-            Some(&"add") => CliCommand::AddMemo { memo: "add", description: "description" },
-            Some(&"search") => CliCommand::SearchMemo { query: "fake query" },
-            _ => CliCommand::InvalidCommand { message: "Invalid command" }
+            Some(&"add") => match clean_args {
+                ref x if x.len() > 3 => CliCommand::AddMemo {
+                    memo: String::from(*x.get(2).unwrap()),
+                    description: String::from(*x.get(3).unwrap()),
+                },
+                _ => CliCommand::InvalidCommand {
+                    message: String::from("You must specify a memo and a description"),
+                },
+            },
+            Some(&"search") => match clean_args {
+                ref x if x.len() > 2 => CliCommand::SearchMemo {
+                    query: String::from(*x.get(2).unwrap()),
+                },
+                _ => CliCommand::InvalidCommand {
+                    message: String::from("You must specify a query"),
+                },
+            },
+            _ => CliCommand::InvalidCommand {
+                message: String::from("Invalid command, try memo --help"),
+            },
         }
     }
 }
