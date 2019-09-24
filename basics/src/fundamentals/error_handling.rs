@@ -12,17 +12,17 @@ pub fn main() {
         NumberTooLow,
     }
 
-    fn do_something(x: &i32) -> Result<i32, UselessErrorKind> {
+    fn process_number(x: i32) -> Result<i32, UselessErrorKind> {
         match x {
-            x if x < &10 => Err(UselessErrorKind::NumberTooLow),
-            x if x > &10 && x < &100 => Ok(x * 25),
+            x if x < 10 => Err(UselessErrorKind::NumberTooLow),
+            x if x > 10 && x < 100 => Ok(x * 25),
             _ => Err(UselessErrorKind::NumberTooHigh),
         }
     }
 
-    println!("{:?}", do_something(&8));
-    println!("{:?}", do_something(&70));
-    println!("{:?}", do_something(&140));
+    println!("{:?}", process_number(8));
+    println!("{:?}", process_number(70));
+    println!("{:?}", process_number(140));
 
     // Open a file
 
@@ -57,4 +57,22 @@ pub fn main() {
 
     let f = File::open("Cargo.toml").unwrap();
     let f = File::open("Cargo.toml").expect("Panic message"); // same as unwrap but with message
+
+    // propagating errors with a match
+
+    fn propagate_error_with_match() -> Result<i32, UselessErrorKind> {
+        let z = match process_number(9) {
+            Ok(x) => x,
+            Err(x) => return Err(x),
+        };
+        return Ok(z * 50);
+    }
+
+    // propagating errors wit a ?
+
+    fn propagate_error_with_interrogation_mark() -> Result<i32, UselessErrorKind> {
+        let f = process_number(9);
+        let z = process_number(9)?;
+        return Ok(z * 50);
+    }
 }
