@@ -1,21 +1,20 @@
 use std::env;
+use std::error::Error;
+use std::process::exit;
 
 use config::Config;
 use file_reader::read_file;
-use std::process::exit;
 
 mod config;
 mod file_reader;
+mod search;
 
-pub fn minigrep() {
-    let command_config = Config::new(env::args().collect()).unwrap_or_else(|err| {
-        eprintln!("Usage error: {}", err);
-        exit(1);
-    });
-    let file_content = read_file(&command_config.file_path).unwrap_or_else(|err| {
-        eprintln!("File error: {}", err);
-        exit(1);
-    });
+pub fn minigrep(args: Vec<String>) -> Result<(), Box<dyn Error>> {
+    let command_config = Config::new(args)?;
+    let file_content = read_file(&command_config.file_path)?;
+
     println!("Searching: {}", &command_config.query);
     println!("In file: {}", &command_config.file_path);
+
+    Ok(())
 }
