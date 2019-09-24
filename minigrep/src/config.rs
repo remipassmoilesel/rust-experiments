@@ -1,7 +1,7 @@
 #[derive(Debug, PartialEq)]
 pub struct Config {
-    query: String,
-    filename: String,
+    pub query: String,
+    pub file_path: String,
 }
 
 impl Config {
@@ -9,7 +9,7 @@ impl Config {
         match args {
             ref x if x.len() > 2 => Ok(Config {
                 query: x[1].clone(),
-                filename: x[2].clone(),
+                file_path: x[2].clone(),
             }),
             _ => Err("Invalid number of arguments"),
         }
@@ -35,7 +35,7 @@ mod tests {
             )),
             Ok(Config {
                 query: String::from("needle"),
-                filename: String::from("haystack.txt")
+                file_path: String::from("haystack.txt")
             })
         );
     }

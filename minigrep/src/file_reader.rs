@@ -1,0 +1,12 @@
+use std::fmt::Debug;
+use std::fs;
+use std::io::{Error, ErrorKind};
+
+pub fn read_file(filepath: &String) -> Result<String, String> {
+    let result = fs::read_to_string(filepath).map_err(|err| err.kind());
+    match result {
+        Ok(String) => Ok(String),
+        Err(ErrorKind::NotFound) => Err(format!("File not found: {}", filepath)),
+        _ => Err(String::from("Unknown error")),
+    }
+}
