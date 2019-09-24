@@ -1,4 +1,4 @@
-pub fn search<'a>(needle: &str, haystack: &'a str) -> Vec<&'a str> {
+pub fn search<'a>(_needle: &str, _haystack: &'a str) -> Vec<&'a str> {
     vec!()
 }
 
