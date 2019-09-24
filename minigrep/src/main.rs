@@ -1,3 +1,5 @@
+extern crate minigrep;
+
 fn main() {
-    println!("Hello, world!");
+    minigrep::minigrep();
 }
