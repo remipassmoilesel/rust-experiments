@@ -1,8 +1,16 @@
-pub fn search<'a>(needle: &str, haystack: &'a str) -> Vec<&'a str> {
-    return haystack
-        .lines()
-        .filter(|line| line.contains(needle))
-        .collect();
+#[derive(Debug, PartialEq)]
+pub struct MatchingLine<'a> {
+    pub content: &'a str,
+    pub number: usize,
+}
+
+pub fn search<'a>(needle: &str, haystack: &'a str) -> Vec<MatchingLine<'a>> {
+    let lines = haystack.lines();
+
+    lines.enumerate()
+        .filter(|line| line.1.contains(needle))
+        .map(|line| MatchingLine { number: line.0, content: line.1 })
+        .collect()
 }
 
 #[cfg(test)]
@@ -18,7 +26,7 @@ mod tests {
         They'd banish us, you know.
           ";
 
-        let empty: Vec<&str> = Vec::new();
+        let empty: Vec<MatchingLine> = Vec::new();
         assert_eq!(search("azertyuio", haystack), empty);
     }
 
@@ -34,8 +42,8 @@ mod tests {
         assert_eq!(
             search("nobody", haystack),
             vec!(
-                "        I'm nobody! Who are you?",
-                "        Are you nobody, too?"
+                MatchingLine { number: 1, content: "        I'm nobody! Who are you?" },
+                MatchingLine { number: 2, content: "        Are you nobody, too?" }
             )
         );
     }
