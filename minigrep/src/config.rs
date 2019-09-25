@@ -26,7 +26,7 @@ mod tests {
     }
 
     #[test]
-    fn sufficients_arguments_should_return_config() {
+    fn sufficient_arguments_should_return_config() {
         assert_eq!(
             Config::new(vec!(
                 String::from("/path/to/bin"),

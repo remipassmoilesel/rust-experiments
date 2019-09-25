@@ -3,6 +3,7 @@ pub mod conditions;
 pub mod enums;
 pub mod error_handling;
 pub mod functions;
+pub mod lifetime;
 pub mod loops;
 pub mod module_system;
 pub mod operations;
