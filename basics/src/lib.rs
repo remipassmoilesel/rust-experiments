@@ -24,5 +24,6 @@ pub fn main() {
     // args::main();
     // files::main();
     // lifetime::main();
-    closures::main();
+    // closures::main();
+    iterators::main();
 }

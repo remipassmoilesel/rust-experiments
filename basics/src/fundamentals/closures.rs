@@ -28,16 +28,16 @@ pub fn main() {
     };
 
     struct Lazy<T>
-        where
-            T: Fn(u32) -> u32,
+    where
+        T: Fn(u32) -> u32,
     {
         func: T,
         values: HashMap<u32, u32>,
     }
 
     impl<T> Lazy<T>
-        where
-            T: Fn(u32) -> u32,
+    where
+        T: Fn(u32) -> u32,
     {
         fn new(func: T) -> Lazy<T> {
             Lazy {
@@ -63,12 +63,9 @@ pub fn main() {
     assert_eq!(lazy_1.get(2), 4);
     assert_eq!(lazy_1.get(6), 12);
     assert_eq!(lazy_1.get(6), 12);
-    
+
     let param = 12;
     let capture = |i| i + param;
 
     assert_eq!(capture(5), 17);
-
-
-
 }
