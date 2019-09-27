@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
 
@@ -17,17 +18,15 @@ pub fn main() {
     let expensive_closure = |num| {
         println!("Calculating slowly...");
         thread::sleep(Duration::from_millis(10));
-        num
+        num * 2
     };
-
-    expensive_closure(2);
 
     struct Lazy<T>
     where
         T: Fn(u32) -> u32,
     {
         func: T,
-        value: Option<u32>,
+        values: HashMap<u32, u32>,
     }
 
     impl<T> Lazy<T>
@@ -35,20 +34,27 @@ pub fn main() {
         T: Fn(u32) -> u32,
     {
         fn new(func: T) -> Lazy<T> {
-            Lazy { func, value: None }
+            Lazy {
+                func,
+                values: HashMap::new(),
+            }
         }
 
         fn get(&mut self, param: u32) -> u32 {
-            match self.value {
-                Some(x) => x,
+            match self.values.get(&param) {
+                Some(x) => *x,
                 None => {
-                    self.value = Some((self.func)(param));
-                    self.value.unwrap()
+                    let v = (self.func)(param);
+                    self.values.insert(param, v);
+                    v
                 }
             }
         }
     }
 
-    let param = 12;
-    let lazy_1 = Lazy::new(expensive_closure);
+    let mut lazy_1 = Lazy::new(expensive_closure);
+    assert_eq!(lazy_1.get(2), 4);
+    assert_eq!(lazy_1.get(2), 4);
+    assert_eq!(lazy_1.get(6), 12);
+    assert_eq!(lazy_1.get(6), 12);
 }
