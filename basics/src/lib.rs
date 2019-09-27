@@ -23,5 +23,6 @@ pub fn main() {
     // error_handling::main();
     // args::main();
     // files::main();
-    lifetime::main();
+    // lifetime::main();
+    closures::main();
 }
