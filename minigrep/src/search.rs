@@ -7,9 +7,13 @@ pub struct MatchingLine<'a> {
 pub fn search<'a>(needle: &str, haystack: &'a str) -> Vec<MatchingLine<'a>> {
     let lines = haystack.lines();
 
-    lines.enumerate()
+    lines
+        .enumerate()
         .filter(|line| line.1.contains(needle))
-        .map(|line| MatchingLine { number: line.0, content: line.1 })
+        .map(|line| MatchingLine {
+            number: line.0,
+            content: line.1,
+        })
         .collect()
 }
 
@@ -42,8 +46,14 @@ mod tests {
         assert_eq!(
             search("nobody", haystack),
             vec!(
-                MatchingLine { number: 1, content: "        I'm nobody! Who are you?" },
-                MatchingLine { number: 2, content: "        Are you nobody, too?" }
+                MatchingLine {
+                    number: 1,
+                    content: "        I'm nobody! Who are you?"
+                },
+                MatchingLine {
+                    number: 2,
+                    content: "        Are you nobody, too?"
+                }
             )
         );
     }
