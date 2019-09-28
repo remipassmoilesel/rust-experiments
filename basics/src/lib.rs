@@ -29,5 +29,6 @@ pub fn main() {
     // box_deref_drop::main();
     // reference_counters::main();
     // ref_cell::main();
-    threads::main();
+    // threads::main();
+    oop::main();
 }
