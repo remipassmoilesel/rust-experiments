@@ -1,13 +1,17 @@
 # Rust experiments
 
 Reading:
-- https://doc.rust-lang.org/book/ch03-03-how-functions-work.html
+- https://doc.rust-lang.org/book
 
 See: 
 - https://doc.rust-lang.org/book/
+- https://doc.rust-lang.org/stable/rust-by-example/
 - https://doc.rust-lang.org/stable/std/
 - https://blog.guillaume-gomez.fr/Rust/
 - https://www.youtube.com/watch?v=vOMJlQ5B-M0&list=PLVvjrrRCBy2JSHf9tGxGKJ-bYAN_uDCUL
+
+Todo:
+- https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
 
 
 ## Miscellaneous commands

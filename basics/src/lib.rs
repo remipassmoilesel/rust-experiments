@@ -28,5 +28,6 @@ pub fn main() {
     // iterators::main();
     // box_deref_drop::main();
     // reference_counters::main();
-    ref_cell::main();
+    // ref_cell::main();
+    threads::main();
 }

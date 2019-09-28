@@ -14,5 +14,6 @@ pub mod ownership;
 pub mod ref_cell;
 pub mod reference_counters;
 pub mod structs;
+pub mod threads;
 pub mod tuples;
 pub mod variables;
