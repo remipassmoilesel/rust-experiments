@@ -8,6 +8,7 @@ pub trait Messenger {
 //
 // LOG MESSENGER
 // Example implementation of trait Messenger
+// See below mock messenger
 //
 
 struct LogMessenger {}
@@ -25,29 +26,9 @@ impl Messenger for LogMessenger {
 }
 
 //
-// MOCK MESSENGER
-// Using a RefCell for interior mutability
+// LIMIT TRACKER
+// Will use Messengers
 //
-
-struct MockMessenger {
-    // Interior Mutability pattern
-    // here we must use a refcell, in order to get an immutable field we can mutate internally
-    sent_messages: RefCell<Vec<String>>,
-}
-
-impl MockMessenger {
-    fn new() -> MockMessenger {
-        MockMessenger {
-            sent_messages: RefCell::new(vec![]),
-        }
-    }
-}
-
-impl Messenger for MockMessenger {
-    fn send(&self, message: &str) {
-        self.sent_messages.borrow_mut().push(String::from(message));
-    }
-}
 
 pub struct LimitTracker<'a, T: Messenger> {
     messenger: &'a T,
@@ -106,7 +87,7 @@ fn ref_cell_example() {
     // thread 'main' panicked at 'already borrowed: BorrowMutError',
 
     let dumb_ref_cell = RefCell::new(5);
-    let ref_mut1 = dumb_ref_cell.borrow_mut();
+    let _ref_mut1 = dumb_ref_cell.borrow_mut();
     // let ref_mut2 = dumb_ref_cell.borrow_mut();
 }
 
@@ -128,7 +109,7 @@ fn multiple_owner_of_mutable_data() {
     println!("{:?}", b);
     println!("{:?}", c);
 
-    let ref_mut1 = a.borrow_mut();
+    let _ref_mut1 = a.borrow_mut();
     // let ref_mut2 = b.borrow_mut(); // will panic because we cannot hold two mutable references
 }
 
@@ -140,9 +121,33 @@ pub fn main() {
 
 #[cfg(test)]
 mod tests {
-    use std::cell::RefCell;
 
     use super::*;
+
+    //
+    // MOCK MESSENGER
+    // Using a RefCell for interior mutability
+    //
+
+    struct MockMessenger {
+        // Interior Mutability pattern
+        // here we must use a refcell, in order to get an immutable field we can mutate internally
+        sent_messages: RefCell<Vec<String>>,
+    }
+
+    impl MockMessenger {
+        fn new() -> MockMessenger {
+            MockMessenger {
+                sent_messages: RefCell::new(vec![]),
+            }
+        }
+    }
+
+    impl Messenger for MockMessenger {
+        fn send(&self, message: &str) {
+            self.sent_messages.borrow_mut().push(String::from(message));
+        }
+    }
 
     #[test]
     fn it_sends_an_over_75_percent_warning_message() {

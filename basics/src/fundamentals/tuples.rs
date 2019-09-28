@@ -5,11 +5,11 @@ pub fn main() {
     println!("{}", tup.0);
 
     // destructuration
-    let (x, y, z) = tup;
+    let (_x, _y, _z) = tup;
 
-    let a: [i32; 5] = [1, 2, 3, 4, 5];
+    let _a: [i32; 5] = [1, 2, 3, 4, 5];
     let a = [3; 5]; // create an array with 5 integer
 
-    let first = a[0];
-    let second = a[1];
+    let _first = a[0];
+    let _second = a[1];
 }

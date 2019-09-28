@@ -27,8 +27,6 @@ impl Calculator {
 mod tests {
     use crate::testing::calculator::Calculator;
 
-    use super::*;
-
     #[test]
     fn add_should_work() {
         assert_eq!(Calculator::add(&2, &2), Ok(4));

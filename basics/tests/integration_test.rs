@@ -3,7 +3,6 @@
 extern crate basics;
 
 use basics::testing::calculator::Calculator;
-use basics::*;
 
 mod common;
 

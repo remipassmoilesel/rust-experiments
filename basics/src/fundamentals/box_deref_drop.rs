@@ -1,4 +1,4 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 
 pub fn main() {
     simple_box_sample();
@@ -82,10 +82,10 @@ pub fn drop_trait() {
         }
     }
 
-    let c = CustomSmartPointer {
+    let _c = CustomSmartPointer {
         data: String::from("my stuff"),
     };
-    let d = CustomSmartPointer {
+    let _d = CustomSmartPointer {
         data: String::from("other stuff"),
     };
     println!("CustomSmartPointers created.");

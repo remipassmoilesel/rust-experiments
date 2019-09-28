@@ -6,11 +6,11 @@ pub fn main() {
         }
     }
 
-    let anonym_function = |i: i32| -> i32 { i * 2 };
-
-    println!("{}", anonym_function(4));
+    assert_eq!(get_bigger(1, 2), 2);
 
     fn multiple_results() -> (i32, i32) {
         (1, 2)
     }
+
+    assert_eq!(multiple_results(), (1, 2));
 }

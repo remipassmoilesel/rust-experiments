@@ -1,4 +1,4 @@
-use std::sync::{mpsc, Arc, LockResult, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::thread::JoinHandle;
 use std::time::Duration;
@@ -26,7 +26,7 @@ fn simple_example() {
         thread::sleep(Duration::from_millis(1));
     }
 
-    handle.join();
+    handle.join().unwrap();
 }
 
 fn move_example() {
@@ -36,7 +36,7 @@ fn move_example() {
         println!("Value: {} ", value);
     });
 
-    handle.join();
+    handle.join().unwrap();
 }
 
 fn builder_example() {
@@ -60,7 +60,7 @@ fn builder_example() {
     }
 
     for handle in handles {
-        handle.join();
+        handle.join().unwrap();
     }
 }
 

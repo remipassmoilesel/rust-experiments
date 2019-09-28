@@ -21,7 +21,7 @@ pub fn main() {
         num * 2
     };
 
-    let expensive_len = |x: String| {
+    let _expensive_len = |x: String| {
         println!("Counting chars, please wait a few days...");
         thread::sleep(Duration::from_millis(10));
         x.len()

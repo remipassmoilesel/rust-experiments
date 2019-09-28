@@ -1,3 +1,4 @@
+pub mod annotations;
 pub mod box_deref_drop;
 pub mod closures;
 pub mod collections;

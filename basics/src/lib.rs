@@ -1,7 +1,4 @@
 use fundamentals::*;
-use std_samples::*;
-use testing::calculator::*;
-use tokio_samples::*;
 
 pub mod fundamentals;
 pub mod std_samples;
@@ -9,6 +6,7 @@ pub mod testing;
 pub mod tokio_samples;
 
 pub fn main() {
+    // annotations::main();
     // conditions::main();
     // variables::main();
     // loops::main();
@@ -19,10 +17,7 @@ pub fn main() {
     // enums::main();
     // module_system::main();
     // collections::main();
-    // client::main();
     // error_handling::main();
-    // args::main();
-    // files::main();
     // lifetime::main();
     // closures::main();
     // iterators::main();

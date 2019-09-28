@@ -10,8 +10,9 @@ pub fn main() {
     }
 
     let var = loop {
-        break i += 1;
+        break i * 2;
     };
+    assert_eq!(var, 6);
 
     // While
 
@@ -24,7 +25,7 @@ pub fn main() {
 
     // For
 
-    let range = 0..10;
+    let _range = 0..10;
 
     for i in 0..10 {
         // Every object that implements IntoIterator

@@ -1,6 +1,8 @@
 pub fn main() {
     // Struct definition
 
+    #[allow(dead_code)]
+    #[derive(Debug, PartialEq)]
     struct User {
         username: String,
         email: String,
@@ -9,6 +11,7 @@ pub fn main() {
     }
 
     struct Value; // unit struct
+    let _i = Value {};
 
     // Struct value
 
@@ -21,14 +24,14 @@ pub fn main() {
 
     // Mutable struct value, all fields are mutable
 
-    let mut mutableUser = User {
+    let mut mutable_user = User {
         email: String::from("someone@example.com"),
         username: String::from("someusername123"),
         active: true,
         sign_in_count: 1,
     };
 
-    mutableUser.email = String::from("anotheremail@example.com");
+    mutable_user.email = String::from("anotheremail@example.com");
 
     // Struct builder
 
@@ -40,25 +43,34 @@ pub fn main() {
             sign_in_count: 1,
         }
     }
+    assert_eq!(
+        build_user(String::from("hey@hey"), String::from("hey_man")),
+        User {
+            email: String::from("hey@hey"),
+            username: String::from("hey_man"),
+            active: true,
+            sign_in_count: 1,
+        }
+    );
 
     // Create struct from another struct
 
-    fn copy_user(user: User, username: String, email: String) {
+    fn copy_user(user: User, _username: String, _email: String) {
         User {
             email: String::from("another@example.com"),
             username: String::from("anotherusername567"),
             ..user
         };
     }
-    let user3 = copy_user(user1, String::from("user2"), String::from("user2@mail.com"));
+    let _user3 = copy_user(user1, String::from("user2"), String::from("user2@mail.com"));
 
     // Tuple structs
 
     struct Color(i32, i32, i32);
     struct Point(i32, i32, i32);
 
-    let black = Color(0, 0, 0);
-    let origin = Point(0, 0, 0);
+    let _black = Color(0, 0, 0);
+    let _origin = Point(0, 0, 0);
 
     // Debug display
 

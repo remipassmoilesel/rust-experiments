@@ -55,8 +55,8 @@ pub fn main() {
 
     // Unwrap: get value or panic!
 
-    let f = File::open("Cargo.toml").unwrap();
-    let f = File::open("Cargo.toml").expect("Panic message"); // same as unwrap but with message
+    let _f = File::open("Cargo.toml").unwrap();
+    let _f = File::open("Cargo.toml").expect("Panic message"); // same as unwrap but with message
 
     // propagating errors with a match
 
@@ -67,12 +67,21 @@ pub fn main() {
         };
         return Ok(z * 50);
     }
+    match propagate_error_with_match() {
+        Err(err) => println!("ERROR: {:?}", err),
+        _ => (),
+    }
 
     // propagating errors wit a ?
 
     fn propagate_error_with_interrogation_mark() -> Result<i32, UselessErrorKind> {
-        let f = process_number(9);
+        let _f = process_number(9);
         let z = process_number(9)?;
         return Ok(z * 50);
+    }
+
+    match propagate_error_with_interrogation_mark() {
+        Err(err) => println!("ERROR: {:?}", err),
+        _ => (),
     }
 }
