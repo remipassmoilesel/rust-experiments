@@ -12,6 +12,7 @@ See:
 
 Todo:
 - https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
+- https://doc.rust-lang.org/book/ch16-04-extensible-concurrency-sync-and-send.html
 
 
 ## Miscellaneous commands

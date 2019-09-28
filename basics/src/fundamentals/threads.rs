@@ -1,4 +1,4 @@
-use std::sync::mpsc;
+use std::sync::{mpsc, Arc, LockResult, Mutex};
 use std::thread;
 use std::thread::JoinHandle;
 use std::time::Duration;
@@ -10,6 +10,7 @@ pub fn main() {
     simple_channel_example();
     channel_multiple_messages();
     channel_multiple_producers_and_messages();
+    mutex_examples();
 }
 
 fn simple_example() {
@@ -136,4 +137,28 @@ pub fn channel_multiple_producers_and_messages() {
     for received in rx {
         println!("Got: {}", received);
     }
+}
+
+fn mutex_examples() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            // here we try to acquire mutex lock to access value
+            match counter.lock() {
+                Ok(mut x) => *x += 1,
+                Err(e) => eprintln!("Error: {:?}", e),
+            }
+            // mutex lock will be released by drop trait
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!("Result: {}", *counter.lock().unwrap());
 }
