@@ -61,8 +61,8 @@ pub struct LimitTracker<'a, T: Messenger> {
 //
 
 impl<'a, T> LimitTracker<'a, T>
-    where
-        T: Messenger,
+where
+    T: Messenger,
 {
     pub fn new(messenger: &T, max: usize) -> LimitTracker<T> {
         LimitTracker {
@@ -119,14 +119,17 @@ fn multiple_owner_of_mutable_data() {
     let b = Rc::clone(&value);
     let c = Rc::clone(&value);
 
-    // TODO: explain
     *a.borrow_mut() += 1;
     *b.borrow_mut() += 1;
+    *c.borrow_mut() += 1;
 
     println!("{:?}", value);
     println!("{:?}", a);
     println!("{:?}", b);
     println!("{:?}", c);
+
+    let ref_mut1 = a.borrow_mut();
+    // let ref_mut2 = b.borrow_mut(); // will panic because we cannot hold two mutable references
 }
 
 pub fn main() {
