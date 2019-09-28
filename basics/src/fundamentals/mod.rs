@@ -11,6 +11,7 @@ pub mod loops;
 pub mod module_system;
 pub mod operations;
 pub mod ownership;
+pub mod ref_cell;
 pub mod reference_counters;
 pub mod structs;
 pub mod tuples;

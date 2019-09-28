@@ -7,7 +7,6 @@ pub fn main() {
     drop_trait();
 }
 
-
 fn simple_box_sample() {
     // box stores on the heap
 
@@ -34,7 +33,6 @@ fn deref_operator() {
 }
 
 fn deref_trait_and_coercion() {
-
     // custom box implementation
 
     #[derive(Debug)]
@@ -72,7 +70,6 @@ fn deref_trait_and_coercion() {
 }
 
 pub fn drop_trait() {
-
     // Drop trait, executed when a value is going out of scope
 
     struct CustomSmartPointer {

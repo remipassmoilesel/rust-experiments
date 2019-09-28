@@ -27,5 +27,6 @@ pub fn main() {
     // closures::main();
     // iterators::main();
     // box_deref_drop::main();
-    reference_counters::main();
+    // reference_counters::main();
+    ref_cell::main();
 }
