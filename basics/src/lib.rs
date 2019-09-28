@@ -25,5 +25,6 @@ pub fn main() {
     // files::main();
     // lifetime::main();
     // closures::main();
-    iterators::main();
+    // iterators::main();
+    box_deref_drop::main();
 }

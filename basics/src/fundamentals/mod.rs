@@ -10,6 +10,7 @@ pub mod loops;
 pub mod module_system;
 pub mod operations;
 pub mod ownership;
+pub mod box_deref_drop;
 pub mod structs;
 pub mod tuples;
 pub mod variables;

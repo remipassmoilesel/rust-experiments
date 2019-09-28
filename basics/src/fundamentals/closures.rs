@@ -91,5 +91,5 @@ pub fn main() {
     };
 
     closure_that_take_ownership(vec![1, 2, 3, 4, 5]);
-    println!("{:?}", param);  // will fail
+    // println!("{:?}", param);  // will fail
 }
