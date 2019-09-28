@@ -1,5 +1,8 @@
 use std::rc::Rc;
 
+/**
+    Reference counters represent multiple ownership and allow to read data from multiple places
+*/
 pub fn main() {
 
     let value = Rc::new(vec!(1,2,3,4,5,6));

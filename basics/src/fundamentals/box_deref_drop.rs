@@ -1,11 +1,21 @@
 use std::ops::{Deref, DerefMut};
 
 pub fn main() {
-    // box store on the heap
+    simple_box_sample();
+    deref_operator();
+    deref_trait_and_coercion();
+    drop_trait();
+}
+
+
+fn simple_box_sample() {
+    // box stores on the heap
 
     let stored_on_heap = Box::new(5);
     println!("stored_on_heap = {}", stored_on_heap);
+}
 
+fn deref_operator() {
     // deref operator: *
 
     let x = 5;
@@ -21,6 +31,9 @@ pub fn main() {
 
     assert_eq!(5, x);
     assert_eq!(5, *y);
+}
+
+fn deref_trait_and_coercion() {
 
     // custom box implementation
 
@@ -56,6 +69,9 @@ pub fn main() {
     hello(&m);
 
     // TODO: see DerefMut
+}
+
+pub fn drop_trait() {
 
     // Drop trait, executed when a value is going out of scope
 
