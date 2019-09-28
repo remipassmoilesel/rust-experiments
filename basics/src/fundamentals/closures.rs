@@ -68,4 +68,28 @@ pub fn main() {
     let capture = |i| i + param;
 
     assert_eq!(capture(5), 17);
+
+    // Force move of value in closures (can be useful for threads
+
+    let param = vec![2, 4];
+    let closure_that_do_not_take_ownership = |vec: Vec<i32>| -> Vec<i32> {
+        vec.iter()
+            .filter(|x| param.contains(x))
+            .map(|x| *x)
+            .collect()
+    };
+
+    closure_that_do_not_take_ownership(vec![1, 2, 3, 4, 5]);
+    println!("{:?}", param);
+
+    let param = vec![2, 4];
+    let closure_that_take_ownership = move |vec: Vec<i32>| -> Vec<i32> {
+        vec.iter()
+            .filter(|x| param.contains(x))
+            .map(|x| *x)
+            .collect()
+    };
+
+    closure_that_take_ownership(vec![1, 2, 3, 4, 5]);
+    println!("{:?}", param);  // will fail
 }
