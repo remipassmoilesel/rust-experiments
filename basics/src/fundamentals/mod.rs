@@ -1,3 +1,4 @@
+pub mod box_deref_drop;
 pub mod closures;
 pub mod collections;
 pub mod conditions;
@@ -10,7 +11,7 @@ pub mod loops;
 pub mod module_system;
 pub mod operations;
 pub mod ownership;
-pub mod box_deref_drop;
+pub mod reference_counters;
 pub mod structs;
 pub mod tuples;
 pub mod variables;
