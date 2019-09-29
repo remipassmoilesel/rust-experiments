@@ -10,7 +10,7 @@ use std::sync::Arc;
 use hyper::rt::Future;
 use hyper::server::conn::AddrStream;
 use hyper::service::make_service_fn;
-use hyper::{Server as HyperServer};
+use hyper::Server as HyperServer;
 
 use log::error;
 

@@ -30,26 +30,8 @@ impl Service for Proxy {
         info!("Proxying request: {:#?}", req);
 
         match self.authentication_filter.is_request_authorized(&req) {
-            Ok(_) => {
-                let url: Uri = "http://httpbin.org/response-headers?foo=bar"
-                    .parse()
-                    .unwrap();
-                info!("{:#?}", url);
-
-                let request_result = self.client
-                    .get(url)
-                    .map(|res| {
-                        info!("Response: {:#?}", res);
-                        Response::new(Body::empty())
-                    })
-                    .map_err(|err| {
-                        info!("Error: {:#?}", err);
-                        err
-                    });
-
-                Box::new(request_result)
-            }
-            _ => Box::new(future::ok(Response::new(Body::empty()))),
+            Ok(_) => self.proxy_request(&req),
+            Err(reason) => self.deny_request(&req, reason),
         }
     }
 }
@@ -64,6 +46,32 @@ impl Proxy {
             client: Client::new(),
             authentication_filter,
         }
+    }
+
+    fn proxy_request(&self, req: &Request<Body>) -> BoxFuture {
+        let url: Uri = "http://httpbin.org/response-headers?foo=bar"
+            .parse()
+            .unwrap();
+        info!("{:#?}", url);
+
+        let request_result = self
+            .client
+            .get(url)
+            .map(|res| {
+                info!("Response: {:#?}", res);
+                Response::new(Body::empty())
+            })
+            .map_err(|err| {
+                info!("Error: {:#?}", err);
+                err
+            });
+
+        Box::new(request_result)
+    }
+
+    fn deny_request(&self, req: &Request<Body>, reason: String) -> BoxFuture {
+        let response = Response::new(Body::empty());
+        Box::new(future::ok(response))
     }
 }
 
