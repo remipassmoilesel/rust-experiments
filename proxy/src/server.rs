@@ -14,7 +14,7 @@ use hyper::Server as HyperServer;
 
 use log::error;
 
-use crate::authentication_filter::AuthenticationFilter;
+use crate::authentication::AuthenticationFilter;
 use crate::configuration::Configuration;
 use crate::proxy::Proxy;
 
@@ -37,9 +37,10 @@ impl Server {
         };
 
         let config = self.configuration.clone();
-        let new_svc = make_service_fn(move |_socket: &AddrStream| {
+        let new_svc = make_service_fn(move |socket: &AddrStream| {
+            let remote_addr = socket.remote_addr();
             let filter = AuthenticationFilter::new(config.clone());
-            Proxy::new(config.clone(), filter)
+            Proxy::new(config.clone(), filter, remote_addr)
         });
 
         match HyperServer::try_bind(&addr) {

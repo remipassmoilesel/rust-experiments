@@ -7,7 +7,7 @@ use log::info;
 use crate::configuration::Configuration;
 use crate::server::Server;
 
-mod authentication_filter;
+mod authentication;
 mod configuration;
 mod proxy;
 mod server;
