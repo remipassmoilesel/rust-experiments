@@ -1,0 +1,10 @@
+---
+proxy:
+  - path: "/elasticsearch/project1-indice1"
+    forward: "http://localhost:9200"
+    secret: "105865f3303c269950e0543acb1760dd07ca927d9ab3671d610072797f840dd0"
+
+  - path: "/elasticsearch/project1-indice2"
+    forward: "http://localhost:9200"
+    secret: "be261d2b11a89bcfbe1bd41f82113d325cd0f447433c7b9ac3485985279asa2a"
+    allowed_origin: "localhost,127.0.0.1"
