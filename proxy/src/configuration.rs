@@ -5,11 +5,11 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::fs;
 
-use yaml_rust::{YamlLoader};
+use yaml_rust::YamlLoader;
 
 use self::yaml_rust::Yaml;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Configuration {
     pub proxy_sections: Vec<ProxySection>,
 }
@@ -61,13 +61,13 @@ impl Display for ConfigurationLoadError {
 }
 
 // TODO: some parameters must be mandatory
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProxySection {
-    name: Option<String>,
-    path: Option<String>,
-    forward: Option<String>,
-    secret: Option<String>,
-    allowed_origins: Option<String>,
+    pub name: Option<String>,
+    pub path: Option<String>,
+    pub forward: Option<String>,
+    pub secret: Option<String>,
+    pub allowed_origins: Option<String>,
 }
 
 impl ProxySection {
