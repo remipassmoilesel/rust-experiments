@@ -3,11 +3,10 @@ mod configuration;
 mod proxy;
 mod server;
 use crate::configuration::Configuration;
-use crate::proxy::Proxy;
+
 use crate::server::Server;
 use log::info;
 use std::error::Error;
-use std::rc::Rc;
 
 extern crate log;
 

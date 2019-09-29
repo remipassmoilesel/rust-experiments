@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-use std::net::SocketAddr;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use futures::future;
 use futures::future::IntoFuture;
@@ -30,7 +28,6 @@ impl Service for Proxy {
 
     fn call(&mut self, req: Request<Self::ReqBody>) -> Self::Future {
         info!("Proxying request: {:#?}", req);
-        let client = Client::new();
 
         match self.authentication_filter.is_request_authorized(&req) {
             Ok(_) => {
@@ -39,7 +36,7 @@ impl Service for Proxy {
                     .unwrap();
                 info!("{:#?}", url);
 
-                let request_result = client
+                let request_result = self.client
                     .get(url)
                     .map(|res| {
                         info!("Response: {:#?}", res);

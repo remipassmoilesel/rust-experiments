@@ -13,7 +13,7 @@ impl AuthenticationFilter {
         AuthenticationFilter { configuration }
     }
 
-    pub fn is_request_authorized(&self, req: &Request<Body>) -> Result<(), String> {
+    pub fn is_request_authorized(&self, _req: &Request<Body>) -> Result<(), String> {
         Ok(())
     }
 }

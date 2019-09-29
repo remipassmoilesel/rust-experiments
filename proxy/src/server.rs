@@ -2,20 +2,17 @@ extern crate futures;
 extern crate log;
 
 use std::error::Error;
-use std::io::{self, Write};
+
 use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use futures::future;
-use hyper::http;
-use hyper::rt::{self, Future, Stream};
+use hyper::rt::Future;
 use hyper::server::conn::AddrStream;
-use hyper::service::{make_service_fn, service_fn, service_fn_ok};
-use hyper::{Body, Request, Response, Server as HyperServer, StatusCode};
-use hyper::{Client, Uri};
-use log::{error, info};
-use tokio_core::reactor::Core;
+use hyper::service::make_service_fn;
+use hyper::{Server as HyperServer};
+
+use log::error;
 
 use crate::authentication_filter::AuthenticationFilter;
 use crate::configuration::Configuration;
@@ -24,8 +21,6 @@ use crate::proxy::Proxy;
 pub struct Server {
     configuration: Arc<Configuration>,
 }
-
-type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
 
 impl Server {
     pub(crate) fn new(configuration: Configuration) -> Server {
