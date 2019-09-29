@@ -1,3 +1,4 @@
+mod authentication_filter;
 mod configuration;
 mod proxy;
 mod server;
@@ -12,8 +13,7 @@ extern crate log;
 
 pub fn start_proxy(config_path: String) -> Result<(), Box<dyn Error>> {
     let config = Configuration::new(config_path)?;
-    let proxy = Proxy::new(config.clone());
-    let server = Server::new(config.clone(), proxy);
+    let server = Server::new(config.clone());
 
     display_config_banner(config);
     server.start()

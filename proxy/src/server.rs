@@ -1,36 +1,36 @@
 extern crate futures;
 extern crate log;
 
-use log::{error, info};
-
 use std::error::Error;
 use std::io::{self, Write};
 use std::net::SocketAddr;
 use std::str::FromStr;
+use std::sync::Arc;
 
 use futures::future;
 use hyper::http;
 use hyper::rt::{self, Future, Stream};
-use hyper::service::{service_fn, service_fn_ok};
+use hyper::server::conn::AddrStream;
+use hyper::service::{make_service_fn, service_fn, service_fn_ok};
 use hyper::{Body, Request, Response, Server as HyperServer, StatusCode};
 use hyper::{Client, Uri};
+use log::{error, info};
 use tokio_core::reactor::Core;
 
+use crate::authentication_filter::AuthenticationFilter;
 use crate::configuration::Configuration;
 use crate::proxy::Proxy;
 
 pub struct Server {
-    configuration: Configuration,
-    proxy: Proxy,
+    configuration: Arc<Configuration>,
 }
 
 type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
 
 impl Server {
-    pub(crate) fn new(configuration: Configuration, proxy: Proxy) -> Server {
+    pub(crate) fn new(configuration: Configuration) -> Server {
         Server {
-            configuration,
-            proxy,
+            configuration: Arc::new(configuration),
         }
     }
 
@@ -41,7 +41,11 @@ impl Server {
             Err(e) => return Err(Box::new(e)),
         };
 
-        let new_svc = || service_fn(Server::handle_requests);
+        let config = self.configuration.clone();
+        let new_svc = make_service_fn(move |_socket: &AddrStream| {
+            let filter = AuthenticationFilter::new(config.clone());
+            Proxy::new(config.clone(), filter)
+        });
 
         match HyperServer::try_bind(&addr) {
             Ok(builder) => {
@@ -54,39 +58,5 @@ impl Server {
         }
 
         Ok(()) // TODO: improve return value
-    }
-
-    // TODO: move functions to a dedicated struct
-    fn handle_requests(req: Request<Body>) -> BoxFuture {
-        info!("Proxying request: {:#?}", req);
-        let client = Client::new();
-
-        match Server::is_request_authorized(&req) {
-            Ok(_) => {
-                let url: Uri = "http://httpbin.org/response-headers?foo=bar"
-                    .parse()
-                    .unwrap();
-                info!("{:#?}", url);
-
-                let request_result = client
-                    .get(url)
-                    .map(|res| {
-                        info!("Response: {:#?}", res);
-                        Response::new(Body::empty())
-                    })
-                    .map_err(|err| {
-                        info!("Error: {:#?}", err);
-                        err
-                    });
-
-                Box::new(request_result)
-            }
-            _ => Box::new(future::ok(Response::new(Body::empty()))),
-        }
-    }
-
-    fn is_request_authorized(req: &Request<Body>) -> Result<(), String> {
-        // Err(String::from("Not allowed"))
-        Ok(())
     }
 }
