@@ -4,8 +4,11 @@ mod server;
 use crate::configuration::Configuration;
 use crate::proxy::Proxy;
 use crate::server::Server;
+use log::info;
 use std::error::Error;
 use std::rc::Rc;
+
+extern crate log;
 
 pub fn start_proxy(config_path: String) -> Result<(), Box<dyn Error>> {
     let config = Configuration::new(config_path)?;
@@ -22,12 +25,12 @@ fn display_config_banner(config: Configuration) {
         .iter()
         .map(|c| c.name.as_ref().unwrap_or(&String::from("Unnamed")).clone())
         .collect();
-    println!(
-        "\nProxy server starting on: {:?}",
+    info!(
+        "Proxy server starting on: {:?}",
         config.server_section.connection_string,
     );
-    println!(
-        "With proxy configuration sections: {}\n",
+    info!(
+        "With proxy configuration sections: {}",
         proxy_section_names.join(", ")
     );
 }

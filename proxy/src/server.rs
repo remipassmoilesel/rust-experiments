@@ -1,4 +1,7 @@
 extern crate futures;
+extern crate log;
+
+use log::{error, info};
 
 use std::error::Error;
 use std::io::{self, Write};
@@ -6,11 +9,11 @@ use std::net::SocketAddr;
 use std::str::FromStr;
 
 use futures::future;
-use hyper::{Body, Request, Response, Server as HyperServer, StatusCode};
-use hyper::{Client, Uri};
 use hyper::http;
 use hyper::rt::{self, Future, Stream};
 use hyper::service::{service_fn, service_fn_ok};
+use hyper::{Body, Request, Response, Server as HyperServer, StatusCode};
+use hyper::{Client, Uri};
 use tokio_core::reactor::Core;
 
 use crate::configuration::Configuration;
@@ -21,7 +24,7 @@ pub struct Server {
     proxy: Proxy,
 }
 
-type BoxFuture = Box<dyn Future<Item=Response<Body>, Error=hyper::Error> + Send>;
+type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
 
 impl Server {
     pub(crate) fn new(configuration: Configuration, proxy: Proxy) -> Server {
@@ -32,7 +35,8 @@ impl Server {
     }
 
     pub fn start(&self) -> Result<(), Box<dyn Error>> {
-        let addr = match SocketAddr::from_str(&self.configuration.server_section.connection_string) {
+        let addr = match SocketAddr::from_str(&self.configuration.server_section.connection_string)
+        {
             Ok(a) => a,
             Err(e) => return Err(Box::new(e)),
         };
@@ -43,7 +47,7 @@ impl Server {
             Ok(builder) => {
                 let server = builder
                     .serve(new_svc)
-                    .map_err(|e| eprintln!("Server error: {}", e));
+                    .map_err(|e| error!("Server error: {}", e));
                 hyper::rt::run(server);
             }
             Err(e) => return Err(Box::new(e)),
@@ -54,30 +58,30 @@ impl Server {
 
     // TODO: move functions to a dedicated struct
     fn handle_requests(req: Request<Body>) -> BoxFuture {
-        println!("Proxying request: {:#?}", req);
+        info!("Proxying request: {:#?}", req);
         let client = Client::new();
 
         match Server::is_request_authorized(&req) {
             Ok(_) => {
-                let url: Uri = "http://httpbin.org/response-headers?foo=bar".parse().unwrap();
-                println!("{:#?}", url);
+                let url: Uri = "http://httpbin.org/response-headers?foo=bar"
+                    .parse()
+                    .unwrap();
+                info!("{:#?}", url);
 
                 let request_result = client
                     .get(url)
                     .map(|res| {
-                        println!("Response: {:#?}", res);
+                        info!("Response: {:#?}", res);
                         Response::new(Body::empty())
                     })
                     .map_err(|err| {
-                        println!("Error: {:#?}", err);
+                        info!("Error: {:#?}", err);
                         err
                     });
 
                 Box::new(request_result)
             }
-            _ => {
-                Box::new(future::ok(Response::new(Body::empty())))
-            }
+            _ => Box::new(future::ok(Response::new(Body::empty()))),
         }
     }
 
