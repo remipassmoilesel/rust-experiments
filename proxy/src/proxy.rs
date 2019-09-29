@@ -9,8 +9,6 @@ pub struct Proxy {
 
 impl Proxy {
     pub fn new(configuration: Configuration) -> Proxy {
-        Proxy {
-            configuration: configuration,
-        }
+        Proxy { configuration }
     }
 }

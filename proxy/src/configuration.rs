@@ -101,8 +101,11 @@ pub struct ServerSection {
 
 impl ServerSection {
     fn new(yaml: &Yaml) -> ServerSection {
-        let connection_string: Option<String> = yaml["connection_string"].as_str().map(|s| String::from(s));
-        ServerSection { connection_string: connection_string.unwrap_or(String::from("127.0.0.1:3000")) }
+        let connection_string: Option<String> =
+            yaml["connection_string"].as_str().map(|s| String::from(s));
+        ServerSection {
+            connection_string: connection_string.unwrap_or(String::from("127.0.0.1:3000")),
+        }
     }
 }
 
