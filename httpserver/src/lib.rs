@@ -4,13 +4,21 @@ use std::net::TcpStream;
 use std::time::Duration;
 use std::{fs, thread};
 
+mod thread_pool;
+use thread_pool::ThreadPool;
+
 pub fn start_server(host: String, port: String) {
     let connection_string = format!("{}:{}", host, port);
     let listener = TcpListener::bind(connection_string).unwrap();
 
+    let pool = ThreadPool::new(4);
+
     for stream in listener.incoming() {
         let stream = stream.unwrap();
-        handle_connection(stream);
+
+        pool.execute(|| {
+            handle_connection(stream);
+        });
     }
 }
 
