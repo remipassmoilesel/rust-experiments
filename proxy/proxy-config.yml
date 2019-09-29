@@ -1,10 +1,8 @@
 ---
-server:
-  port: "8787"
-  hosts:
-    - "127.0.0.1"
 
----
+server:
+  connection_string: "127.0.0.1:7878"
+
 proxy:
   - name: "doc-1 project-1"
     path: "/elasticsearch/project1-indice1"

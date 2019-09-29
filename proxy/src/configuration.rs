@@ -96,20 +96,13 @@ impl ProxySection {
 // TODO: some parameters must be mandatory
 #[derive(Debug, Clone)]
 pub struct ServerSection {
-    pub hosts: Vec<String>,
-    pub port: Option<String>,
+    pub connection_string: String,
 }
 
 impl ServerSection {
     fn new(yaml: &Yaml) -> ServerSection {
-        let hosts: Vec<String> = yaml["hosts"]
-            .as_vec()
-            .unwrap_or(&vec![])
-            .iter()
-            .map(|s| String::from(s.as_str().unwrap_or("invalid_host")))
-            .collect();
-        let port: Option<String> = yaml["port"].as_str().map(|s| String::from(s));
-        ServerSection { hosts, port }
+        let connection_string: Option<String> = yaml["connection_string"].as_str().map(|s| String::from(s));
+        ServerSection { connection_string: connection_string.unwrap_or(String::from("127.0.0.1:3000")) }
     }
 }
 

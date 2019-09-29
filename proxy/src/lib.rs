@@ -10,7 +10,7 @@ use std::rc::Rc;
 pub fn start_proxy(config_path: String) -> Result<(), Box<dyn Error>> {
     let config = Configuration::new(config_path)?;
     let proxy = Proxy::new(config.clone());
-    let server = Server::new(proxy);
+    let server = Server::new(config.clone(), proxy);
 
     display_config_banner(config);
     server.start()
@@ -23,12 +23,11 @@ fn display_config_banner(config: Configuration) {
         .map(|c| c.name.as_ref().unwrap_or(&String::from("Unnamed")).clone())
         .collect();
     println!(
-        "\nProxy server starting with proxy configurations: {}",
-        proxy_section_names.join(", ")
+        "\nProxy server starting on: {:?}",
+        config.server_section.connection_string,
     );
     println!(
-        "On: {:?} {:?}",
-        config.server_section.hosts,
-        config.server_section.port,
+        "With proxy configuration sections: {}\n",
+        proxy_section_names.join(", ")
     );
 }
