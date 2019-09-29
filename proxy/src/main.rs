@@ -4,5 +4,6 @@ extern crate proxy;
 use proxy::start_proxy;
 
 fn main() {
-    start_proxy()
+    let config_path = String::from("config.yml");
+    start_proxy(config_path)
 }
