@@ -10,4 +10,5 @@ edition = "2018"
 yaml-rust = "0.4"
 hyper = "0.12"
 futures = "0.1"
+tokio-core = "0.1.17"
 
