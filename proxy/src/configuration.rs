@@ -78,8 +78,8 @@ pub struct ProxySection {
 impl ProxySection {
     fn new(yaml: &Yaml) -> ProxySection {
         let name = yaml_to_string_option("name", yaml);
-        let path = yaml_to_string_option("path", yaml);
-        let forward = yaml_to_string_option("forward", yaml);
+        let path = yaml_to_string_option("matching_path", yaml);
+        let forward = yaml_to_string_option("forward_to", yaml);
         let secret = yaml_to_string_option("secret", yaml);
         let allowed_origins = yaml_to_string_option("allowed_origins", yaml);
 
@@ -97,14 +97,19 @@ impl ProxySection {
 #[derive(Debug, Clone)]
 pub struct ServerSection {
     pub connection_string: String,
+    pub authorization_header: String,
 }
 
 impl ServerSection {
     fn new(yaml: &Yaml) -> ServerSection {
         let connection_string: Option<String> =
             yaml["connection_string"].as_str().map(|s| String::from(s));
+        let authorization_header: Option<String> = yaml["authorization_header"]
+            .as_str()
+            .map(|s| String::from(s));
         ServerSection {
             connection_string: connection_string.unwrap_or(String::from("127.0.0.1:3000")),
+            authorization_header: authorization_header.unwrap_or(String::from("Authorization")),
         }
     }
 }

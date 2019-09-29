@@ -2,26 +2,26 @@
 
 server:
   connection_string: "127.0.0.1:7878"
+  authorization_header: "X-Authorization"
 
 proxy:
   - name: "doc-1 project-1"
-    path: "/elasticsearch/project1-indice1"
-    forward: "http://localhost:9200"
+    matching_path: "/elasticsearch/project1-indice1"
+    forward_to: "http://localhost:9200"
     secret: "105865f3303c269950e0543acb1760dd07ca927d9ab3671d610072797f840dd0"
 
   - name: "doc-1 project-2"
-    path: "/elasticsearch/project1-indice2"
-    forward: "http://localhost:9200"
+    matching_path: "/elasticsearch/project1-indice2"
+    forward_to: "http://localhost:9200"
     secret: "be261d2b11a89bcfbe1bd41f82113d325cd0f447433c7b9ac3485985279asa2a"
     allowed_origin: "localhost,127.0.0.1"
 
   - name: "doc-2 project-1"
-    path: "/elasticsearch/project2-indice1"
-    forward: "http://localhost:9200"
-    secret: "08ca1a4f9379178a5b43c2c309ccff6010f66dc87bce2d49c5a2073659b64ae2"
+    matching_path: "/elasticsearch/project2-indice1"
+    forward_to: "http://localhost:9200"
 
   - name: "doc-2 project-2"
-    path: "/elasticsearch/project2-indice2"
-    forward: "http://localhost:9200"
+    matching_path: "/elasticsearch/project2-indice2"
+    forward_to: "http://localhost:9200"
     secret: "3012e757954a63967b77202707b6394f46896f2742c76967f5ba33e539120f3e"
     allowed_origin: "localhost,127.0.0.1"
