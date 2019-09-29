@@ -11,6 +11,7 @@ use self::yaml_rust::Yaml;
 
 #[derive(Debug, Clone)]
 pub struct Configuration {
+    pub server_section: ServerSection,
     pub proxy_sections: Vec<ProxySection>,
 }
 
@@ -34,7 +35,23 @@ impl Configuration {
             }
         };
 
-        let sections: Vec<ProxySection> = all_documents
+        let server_section: Vec<ServerSection> = all_documents
+            .iter()
+            .filter(|doc| !doc["server"].is_badvalue())
+            .take(1)
+            .map(|doc| ServerSection::new(&doc["server"]))
+            .collect();
+
+        let server_section = match server_section.get(0) {
+            Some(x) => x.clone(),
+            None => {
+                return Err(ConfigurationLoadError {
+                    message: String::from("Server configuration section is mandatory"),
+                })
+            }
+        };
+
+        let proxy_sections: Vec<ProxySection> = all_documents
             .iter()
             .filter(|doc| doc["proxy"].is_array())
             .flat_map(|doc| doc["proxy"].as_vec().unwrap().iter())
@@ -42,21 +59,9 @@ impl Configuration {
             .collect();
 
         Ok(Configuration {
-            proxy_sections: sections,
+            server_section,
+            proxy_sections,
         })
-    }
-}
-
-#[derive(Debug)]
-pub struct ConfigurationLoadError {
-    message: String,
-}
-
-impl Error for ConfigurationLoadError {}
-
-impl Display for ConfigurationLoadError {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", self.message)
     }
 }
 
@@ -88,9 +93,42 @@ impl ProxySection {
     }
 }
 
+// TODO: some parameters must be mandatory
+#[derive(Debug, Clone)]
+pub struct ServerSection {
+    pub hosts: Vec<String>,
+    pub port: Option<String>,
+}
+
+impl ServerSection {
+    fn new(yaml: &Yaml) -> ServerSection {
+        let hosts: Vec<String> = yaml["hosts"]
+            .as_vec()
+            .unwrap_or(&vec![])
+            .iter()
+            .map(|s| String::from(s.as_str().unwrap_or("invalid_host")))
+            .collect();
+        let port: Option<String> = yaml["port"].as_str().map(|s| String::from(s));
+        ServerSection { hosts, port }
+    }
+}
+
 fn yaml_to_string_option(name: &str, yaml: &Yaml) -> Option<String> {
     match &yaml[name] {
         Yaml::String(x) => Some(x.clone()),
         _ => None,
+    }
+}
+
+#[derive(Debug)]
+pub struct ConfigurationLoadError {
+    message: String,
+}
+
+impl Error for ConfigurationLoadError {}
+
+impl Display for ConfigurationLoadError {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{}", self.message)
     }
 }

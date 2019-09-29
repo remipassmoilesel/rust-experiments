@@ -1,4 +1,10 @@
 ---
+server:
+  port: "8787"
+  hosts:
+    - "127.0.0.1"
+
+---
 proxy:
   - name: "doc-1 project-1"
     path: "/elasticsearch/project1-indice1"
@@ -11,8 +17,6 @@ proxy:
     secret: "be261d2b11a89bcfbe1bd41f82113d325cd0f447433c7b9ac3485985279asa2a"
     allowed_origin: "localhost,127.0.0.1"
 
----
-proxy:
   - name: "doc-2 project-1"
     path: "/elasticsearch/project2-indice1"
     forward: "http://localhost:9200"

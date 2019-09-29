@@ -17,13 +17,18 @@ pub fn start_proxy(config_path: String) -> Result<(), Box<dyn Error>> {
 }
 
 fn display_config_banner(config: Configuration) {
-    let config_names: Vec<String> = config
+    let proxy_section_names: Vec<String> = config
         .proxy_sections
         .iter()
         .map(|c| c.name.as_ref().unwrap_or(&String::from("Unnamed")).clone())
         .collect();
     println!(
-        "Proxy server starting with configurations: {}",
-        config_names.join(", ")
+        "\nProxy server starting with proxy configurations: {}",
+        proxy_section_names.join(", ")
+    );
+    println!(
+        "On: {:?} {:?}",
+        config.server_section.hosts,
+        config.server_section.port,
     );
 }
