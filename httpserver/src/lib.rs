@@ -20,6 +20,8 @@ pub fn start_server(host: String, port: String) {
             handle_connection(stream);
         });
     }
+
+    println!("Shutting down.");
 }
 
 fn handle_connection(mut stream: TcpStream) {
