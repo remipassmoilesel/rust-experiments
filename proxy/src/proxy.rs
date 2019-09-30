@@ -3,12 +3,14 @@ use std::sync::Arc;
 
 use futures::future;
 use futures::future::IntoFuture;
+use futures::stream::Stream;
 use hyper::client::connect::dns::GaiResolver;
 use hyper::client::connect::HttpConnector;
+use hyper::client::ResponseFuture;
 use hyper::header::HeaderValue;
 use hyper::rt::Future;
 use hyper::service::Service;
-use hyper::{Body, Client, Request, Response, Uri};
+use hyper::{Body, Client, Error, Request, Response, Uri};
 use log::error;
 use log::info;
 
@@ -34,7 +36,7 @@ impl Service for Proxy {
         info!("Proxying request: {:#?}", req);
 
         match self.authentication_filter.is_request_authorized(&req) {
-            Ok(_) => self.proxy_request(&req),
+            Ok(_) => self.proxy_request(req),
             Err(reason) => self.deny_request(&req, reason),
         }
     }
@@ -54,34 +56,26 @@ impl Proxy {
         }
     }
 
-    fn proxy_request(&self, req: &Request<Body>) -> BoxFuture {
+    fn proxy_request(&self, original_req: Request<Body>) -> BoxFuture {
         // TODO: add better uri
         let url: Uri = "http://httpbin.org/response-headers?foo=bar"
             .parse()
             .unwrap();
 
-        let mut request_builder = Request::builder();
-        request_builder.method(req.method());
-        request_builder.uri(url);
-        req.headers().iter().for_each(|(name, value)| {
-            request_builder.header(name, value);
-        });
-        match HeaderValue::from_bytes(self.remote_addr.to_string().as_bytes()) {
-            Ok(header_value) => {
-                req.headers().append("X-Forwarded-For", header_value);
-            }
-            Err(err) => {
-                error!("Remove address is invalid: {} {:?}", self.remote_addr, err);
-            }
-        }
-        let proxy_request = request_builder.body(*req.body());
+        let (parts, body) = original_req.into_parts();
+        let mut proxy_req = Request::from_parts(parts, body);
 
-        let request_result = match proxy_request {
-            Ok(mut req) => self.client.request(req), // TODO: cast to future
-            Err(e) => future::err(e),
-        };
+        *proxy_req.uri_mut() = url;
 
-        Box::new(request_result)
+        let forward_header =
+            HeaderValue::from_bytes(self.remote_addr.ip().to_string().as_bytes()).unwrap();
+        (*proxy_req.headers_mut()).append("X-Forwarded-For", forward_header);
+
+        info!("Sending request: {:#?}", proxy_req);
+
+        let res = self.client.request(proxy_req);
+
+        return Box::new(res);
     }
 
     fn deny_request(&self, req: &Request<Body>, reason: String) -> BoxFuture {
