@@ -7,7 +7,7 @@ use std::sync::Arc;
 use futures::future;
 use futures::future::IntoFuture;
 use futures::stream::Stream;
-use hyper::{Body, Client, Error, Request, Response, Uri};
+use hyper::{Body, Client, Error, Request, Response, StatusCode, Uri};
 use hyper::client::connect::dns::GaiResolver;
 use hyper::client::connect::HttpConnector;
 use hyper::client::ResponseFuture;
@@ -17,6 +17,7 @@ use hyper::rt::Future;
 use hyper::service::Service;
 use log::error;
 use log::info;
+use serde_json::json;
 
 use crate::authentication::AuthenticationFilter;
 use crate::config_resolver::ProxyConfigResolver;
@@ -32,6 +33,12 @@ pub struct Proxy {
     remote_addr: SocketAddr,
 }
 
+enum ProxyError {
+    Forbidden,
+    NoTargetFound,
+    InvalidTargetUrl,
+}
+
 impl Service for Proxy {
     type ReqBody = Body;
     type ResBody = Body;
@@ -43,7 +50,8 @@ impl Service for Proxy {
 
         match self.authentication_filter.is_request_authorized(&req) {
             Ok(_) => self.proxy_request(req),
-            Err(reason) => self.deny_request(&req, reason),
+            Err(message) =>
+                self.error_response(ProxyError::Forbidden),
         }
     }
 }
@@ -64,29 +72,29 @@ impl Proxy {
     }
 
     fn proxy_request(&self, original_req: Request<Body>) -> BoxFuture {
-        let target_uri = self.get_proxy_uri(original_req.uri()).unwrap();
-        let (parts, body) = original_req.into_parts();
-        let mut proxy_req = Request::from_parts(parts, body);
+        let target_uri = self.get_proxy_uri(original_req.uri());
+        match target_uri {
+            Ok(uri) => {
+                let (parts, body) = original_req.into_parts();
+                let mut proxy_req = Request::from_parts(parts, body);
 
-        *proxy_req.uri_mut() = target_uri;
+                *proxy_req.uri_mut() = uri;
 
-        let forward_header =
-            HeaderValue::from_bytes(self.remote_addr.ip().to_string().as_bytes()).unwrap();
-        (*proxy_req.headers_mut()).append("X-Forwarded-For", forward_header);
+                let forward_header =
+                    HeaderValue::from_bytes(self.remote_addr.ip().to_string().as_bytes()).unwrap();
+                (*proxy_req.headers_mut()).append("X-Forwarded-For", forward_header);
 
-        info!("Sending request: {:#?}", proxy_req);
+                info!("Sending request: {:#?}", proxy_req);
 
-        let res = self.client.request(proxy_req);
+                let res = self.client.request(proxy_req);
 
-        return Box::new(res);
+                return Box::new(res);
+            }
+            Err(err) => self.error_response(err)
+        }
     }
 
-    fn deny_request(&self, req: &Request<Body>, reason: String) -> BoxFuture {
-        let response = Response::new(Body::empty());
-        Box::new(future::ok(response))
-    }
-
-    fn get_proxy_uri(&self, original_uri: &Uri) -> Result<Uri, String> {
+    fn get_proxy_uri(&self, original_uri: &Uri) -> Result<Uri, ProxyError> {
         let config = self.config_resolver.section_from_uri(original_uri);
         match config {
             Some(c) => {
@@ -95,10 +103,27 @@ impl Proxy {
                 let target = format!("{}{}{}", c.forward_to, path, query);
 
                 Uri::from_str(&target)
-                    .or_else(|invalid_uri| Err(format!("Invalid proxy uri: {} {}", &target, invalid_uri)))
+                    .or_else(|invalid_uri| Err(ProxyError::InvalidTargetUrl))
             }
-            None => Err(String::from("No configuration match"))
+            None => Err(ProxyError::NoTargetFound)
         }
+    }
+
+    fn error_response(&self, error: ProxyError) -> BoxFuture {
+        let (status, error_message) = match error {
+            ProxyError::NoTargetFound => (StatusCode::FORBIDDEN, "Cannot proxy request"),
+            ProxyError::InvalidTargetUrl => (StatusCode::INTERNAL_SERVER_ERROR, "Cannot proxy request"),
+            ProxyError::Forbidden => (StatusCode::INTERNAL_SERVER_ERROR, "Forbidden"),
+        };
+
+        let response_body = json!({"message": error_message}).to_string();
+        Box::new(
+            future::ok(
+                Response::builder()
+                    .status(status)
+                    .body(Body::from(response_body))
+                    .unwrap())
+        )
     }
 }
 
