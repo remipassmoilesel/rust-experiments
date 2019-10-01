@@ -15,12 +15,17 @@ use log::error;
 use log::info;
 
 use crate::authentication::AuthenticationFilter;
-use crate::configuration::Configuration;
+use crate::config_resolver::ProxyConfigResolver;
+use crate::configuration::{Configuration, ProxySection};
+use hyper::http::uri::InvalidUri;
+use std::borrow::BorrowMut;
+use std::str::FromStr;
 
 type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
 
 pub struct Proxy {
     configuration: Arc<Configuration>,
+    config_resolver: ProxyConfigResolver,
     client: Client<HttpConnector<GaiResolver>, Body>,
     authentication_filter: AuthenticationFilter,
     remote_addr: SocketAddr,
@@ -49,7 +54,8 @@ impl Proxy {
         remote_addr: SocketAddr,
     ) -> Self {
         Proxy {
-            configuration,
+            configuration: configuration.clone(),
+            config_resolver: ProxyConfigResolver::new(configuration),
             client: Client::new(),
             authentication_filter,
             remote_addr,
@@ -57,15 +63,11 @@ impl Proxy {
     }
 
     fn proxy_request(&self, original_req: Request<Body>) -> BoxFuture {
-        // TODO: add better uri
-        let url: Uri = "http://httpbin.org/response-headers?foo=bar"
-            .parse()
-            .unwrap();
-
+        let target_uri = self.get_proxy_uri(original_req.uri()).unwrap();
         let (parts, body) = original_req.into_parts();
         let mut proxy_req = Request::from_parts(parts, body);
 
-        *proxy_req.uri_mut() = url;
+        *proxy_req.uri_mut() = target_uri;
 
         let forward_header =
             HeaderValue::from_bytes(self.remote_addr.ip().to_string().as_bytes()).unwrap();
@@ -81,6 +83,15 @@ impl Proxy {
     fn deny_request(&self, req: &Request<Body>, reason: String) -> BoxFuture {
         let response = Response::new(Body::empty());
         Box::new(future::ok(response))
+    }
+
+    fn get_proxy_uri(&self, original_uri: &Uri) -> Result<Uri, InvalidUri> {
+        let proxy_section = self.config_resolver.section_from_uri(original_uri).unwrap();
+        let path = original_uri.path();
+        let query = original_uri.query().unwrap_or("");
+        let target = format!("{}{}{}", proxy_section.forward_to, path, query);
+
+        Uri::from_str(&target)
     }
 }
 

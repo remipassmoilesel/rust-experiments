@@ -5,9 +5,11 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::fs;
 
+use hyper::Uri;
 use yaml_rust::YamlLoader;
 
 use self::yaml_rust::Yaml;
+use regex::Regex;
 
 #[derive(Debug, Clone)]
 pub struct Configuration {
@@ -47,7 +49,7 @@ impl Configuration {
             None => {
                 return Err(ConfigurationLoadError {
                     message: String::from("Server configuration section is mandatory"),
-                })
+                });
             }
         };
 
@@ -69,8 +71,9 @@ impl Configuration {
 #[derive(Debug, Clone)]
 pub struct ProxySection {
     pub name: Option<String>,
-    pub path: Option<String>,
-    pub forward: Option<String>,
+    pub matching_path: String,
+    pub matching_path_regex: Regex,
+    pub forward_to: String,
     pub secret: Option<String>,
     pub allowed_origins: Option<String>,
 }
@@ -78,15 +81,17 @@ pub struct ProxySection {
 impl ProxySection {
     fn new(yaml: &Yaml) -> ProxySection {
         let name = yaml_to_string_option("name", yaml);
-        let path = yaml_to_string_option("matching_path", yaml);
-        let forward = yaml_to_string_option("forward_to", yaml);
+        let matching_path = yaml_to_string_option("matching_path", yaml).unwrap();
+        let matching_path_regex = Regex::new(&matching_path).unwrap();
+        let forward_to = yaml_to_string_option("forward_to", yaml).unwrap();
         let secret = yaml_to_string_option("secret", yaml);
         let allowed_origins = yaml_to_string_option("allowed_origins", yaml);
 
         ProxySection {
             name,
-            path,
-            forward,
+            matching_path,
+            matching_path_regex,
+            forward_to,
             secret,
             allowed_origins,
         }
