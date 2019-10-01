@@ -1,27 +1,28 @@
+use std::borrow::BorrowMut;
+use std::hash::Hash;
 use std::net::SocketAddr;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use futures::future;
 use futures::future::IntoFuture;
 use futures::stream::Stream;
+use hyper::{Body, Client, Error, Request, Response, Uri};
 use hyper::client::connect::dns::GaiResolver;
 use hyper::client::connect::HttpConnector;
 use hyper::client::ResponseFuture;
 use hyper::header::HeaderValue;
+use hyper::http::uri::InvalidUri;
 use hyper::rt::Future;
 use hyper::service::Service;
-use hyper::{Body, Client, Error, Request, Response, Uri};
 use log::error;
 use log::info;
 
 use crate::authentication::AuthenticationFilter;
 use crate::config_resolver::ProxyConfigResolver;
 use crate::configuration::{Configuration, ProxySection};
-use hyper::http::uri::InvalidUri;
-use std::borrow::BorrowMut;
-use std::str::FromStr;
 
-type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
+type BoxFuture = Box<dyn Future<Item=Response<Body>, Error=hyper::Error> + Send>;
 
 pub struct Proxy {
     configuration: Arc<Configuration>,
@@ -85,13 +86,19 @@ impl Proxy {
         Box::new(future::ok(response))
     }
 
-    fn get_proxy_uri(&self, original_uri: &Uri) -> Result<Uri, InvalidUri> {
-        let proxy_section = self.config_resolver.section_from_uri(original_uri).unwrap();
-        let path = original_uri.path();
-        let query = original_uri.query().unwrap_or("");
-        let target = format!("{}{}{}", proxy_section.forward_to, path, query);
+    fn get_proxy_uri(&self, original_uri: &Uri) -> Result<Uri, String> {
+        let config = self.config_resolver.section_from_uri(original_uri);
+        match config {
+            Some(c) => {
+                let path = original_uri.path();
+                let query = original_uri.query().map(|q| format!("?{}", q)).unwrap_or(String::from(""));
+                let target = format!("{}{}{}", c.forward_to, path, query);
 
-        Uri::from_str(&target)
+                Uri::from_str(&target)
+                    .or_else(|invalid_uri| Err(format!("Invalid proxy uri: {} {}", &target, invalid_uri)))
+            }
+            None => Err(String::from("No configuration match"))
+        }
     }
 }
 
@@ -102,5 +109,96 @@ impl IntoFuture for Proxy {
 
     fn into_future(self) -> Self::Future {
         future::ok(self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::net::{IpAddr, Ipv4Addr, SocketAddrV4};
+    use std::str::FromStr;
+
+    use log::{error, info, Level};
+    use regex::Regex;
+
+    use crate::configuration::ServerSection;
+
+    use super::*;
+
+    extern crate log;
+    extern crate simple_logger;
+
+    #[test]
+    fn should_create_correct_proxy_uri_with_query() {
+        setup();
+        let proxy = test_proxy();
+
+        let with_query = proxy.get_proxy_uri(
+            &Uri::from_str(&"http://domain-1.net/path-2/sub-path-2?query_arg1=val1&query_arg1=val1").unwrap(),
+        );
+        assert_eq!(with_query.is_ok(), true);
+        assert_eq!(with_query.unwrap(), "http://localhost:10100/path-2/sub-path-2?query_arg1=val1&query_arg1=val1");
+    }
+
+    #[test]
+    fn should_create_correct_proxy_uri_without_query() {
+        setup();
+        let proxy = test_proxy();
+
+        let with_query = proxy.get_proxy_uri(
+            &Uri::from_str(&"http://domain-1.net/path-2/sub-path-2").unwrap(),
+        );
+        assert_eq!(with_query.is_ok(), true);
+        assert_eq!(with_query.unwrap(), "http://localhost:10100/path-2/sub-path-2");
+    }
+
+    #[test]
+    fn should_return_err_if_no_proxy_config_match() {
+        setup();
+        let proxy = test_proxy();
+
+        let with_query = proxy.get_proxy_uri(
+            &Uri::from_str(&"http://domain-1.net/should-not-match").unwrap(),
+        );
+        assert_eq!(with_query.is_ok(), false);
+    }
+
+    fn setup() {
+        simple_logger::init();
+    }
+
+    fn test_proxy() -> Proxy {
+        let config = Configuration {
+            server_section: ServerSection {
+                connection_string: String::from("127.0.0.1:8787"),
+                authorization_header: String::from("Authorization"),
+            },
+            proxy_sections: vec![
+                ProxySection {
+                    name: Some(String::from("section-1")),
+                    matching_path: String::from("/path-1"),
+                    matching_path_regex: Regex::new(&"/path-1").unwrap(),
+                    forward_to: String::from("http://localhost:9990"),
+                    secret: None,
+                    allowed_origins: None,
+                },
+                ProxySection {
+                    name: Some(String::from("section-2")),
+                    matching_path: String::from("/path-2"),
+                    matching_path_regex: Regex::new(&"/path-2").unwrap(),
+                    forward_to: String::from("http://localhost:10100"),
+                    secret: None,
+                    allowed_origins: None,
+                },
+            ],
+        };
+
+        let a_config = Arc::new(config);
+        Proxy {
+            configuration: a_config.clone(),
+            config_resolver: ProxyConfigResolver::new(a_config.clone()),
+            client: Client::new(),
+            authentication_filter: AuthenticationFilter::new(a_config.clone()),
+            remote_addr: SocketAddr::new(IpAddr::from(Ipv4Addr::new(127, 0, 0, 1)), 43522),
+        }
     }
 }
