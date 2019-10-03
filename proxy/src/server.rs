@@ -30,14 +30,13 @@ impl Server {
     }
 
     pub fn start(&self) -> Result<(), Box<dyn Error>> {
-        let addr = match SocketAddr::from_str(&self.configuration.server_section.connection_string)
-        {
+        let addr = match SocketAddr::from_str(&self.configuration.server_section.connection_string) {
             Ok(a) => a,
             Err(e) => return Err(Box::new(e)),
         };
 
         let config = self.configuration.clone();
-        let new_svc = make_service_fn(move |socket: &AddrStream| {
+        let service_factory = make_service_fn(move |socket: &AddrStream| {
             let remote_addr = socket.remote_addr();
             let filter = AuthenticationFilter::new(config.clone());
             Proxy::new(config.clone(), filter, remote_addr)
@@ -45,9 +44,7 @@ impl Server {
 
         match HyperServer::try_bind(&addr) {
             Ok(builder) => {
-                let server = builder
-                    .serve(new_svc)
-                    .map_err(|e| error!("Server error: {}", e));
+                let server = builder.serve(service_factory).map_err(|e| error!("Server error: {}", e));
                 hyper::rt::run(server);
             }
             Err(e) => return Err(Box::new(e)),

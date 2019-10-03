@@ -13,4 +13,6 @@ On Ubuntu 18.04:
 
 ## TODO
 
+- Replace all String by &str
 - Remove all unwrap calls
+

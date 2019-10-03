@@ -46,8 +46,7 @@ mod tests {
         let config = test_config();
         let resolver = ProxyConfigResolver::new(Arc::new(config));
 
-        let section =
-            resolver.section_from_uri(&Uri::from_str("http://localhost:9990/path-2").unwrap());
+        let section = resolver.section_from_uri(&Uri::from_str("http://localhost:9990/path-2").unwrap());
         assert_eq!(section.is_some(), true);
         assert_eq!(section.unwrap().name, Some(String::from("section-2")));
     }

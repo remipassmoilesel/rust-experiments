@@ -6,10 +6,10 @@ use std::fmt::{Display, Formatter};
 use std::fs;
 
 use hyper::Uri;
+use regex::Regex;
 use yaml_rust::YamlLoader;
 
 use self::yaml_rust::Yaml;
-use regex::Regex;
 
 #[derive(Debug, Clone)]
 pub struct Configuration {
@@ -75,7 +75,7 @@ pub struct ProxySection {
     pub matching_path_regex: Regex,
     pub forward_to: String,
     pub secret: Option<String>,
-    pub allowed_origins: Option<String>,
+    pub allowed_origins: Vec<String>,
 }
 
 impl ProxySection {
@@ -85,7 +85,9 @@ impl ProxySection {
         let matching_path_regex = Regex::new(&matching_path).unwrap();
         let forward_to = yaml_to_string_option("forward_to", yaml).unwrap();
         let secret = yaml_to_string_option("secret", yaml);
-        let allowed_origins = yaml_to_string_option("allowed_origins", yaml);
+
+        let allowed_origins_str = yaml_to_string_option("allowed_origins", yaml).unwrap_or(String::from(""));
+        let allowed_origins: Vec<String> = allowed_origins_str.split(",").map(|s| String::from(s)).collect();
 
         ProxySection {
             name,
@@ -107,11 +109,8 @@ pub struct ServerSection {
 
 impl ServerSection {
     fn new(yaml: &Yaml) -> ServerSection {
-        let connection_string: Option<String> =
-            yaml["connection_string"].as_str().map(|s| String::from(s));
-        let authorization_header: Option<String> = yaml["authorization_header"]
-            .as_str()
-            .map(|s| String::from(s));
+        let connection_string: Option<String> = yaml["connection_string"].as_str().map(|s| String::from(s));
+        let authorization_header: Option<String> = yaml["authorization_header"].as_str().map(|s| String::from(s));
         ServerSection {
             connection_string: connection_string.unwrap_or(String::from("127.0.0.1:3000")),
             authorization_header: authorization_header.unwrap_or(String::from("Authorization")),
