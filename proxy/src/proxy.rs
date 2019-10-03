@@ -7,7 +7,6 @@ use std::sync::Arc;
 use futures::future;
 use futures::future::IntoFuture;
 use futures::stream::Stream;
-use hyper::{Body, Client, Error, Request, Response, StatusCode, Uri};
 use hyper::client::connect::dns::GaiResolver;
 use hyper::client::connect::HttpConnector;
 use hyper::client::ResponseFuture;
@@ -15,6 +14,7 @@ use hyper::header::HeaderValue;
 use hyper::http::uri::InvalidUri;
 use hyper::rt::Future;
 use hyper::service::Service;
+use hyper::{Body, Client, Error, Request, Response, StatusCode, Uri};
 use log::error;
 use log::info;
 use serde_json::json;
@@ -23,7 +23,7 @@ use crate::authentication::AuthenticationFilter;
 use crate::config_resolver::ProxyConfigResolver;
 use crate::configuration::{Configuration, ProxySection};
 
-type BoxFuture = Box<dyn Future<Item=Response<Body>, Error=hyper::Error> + Send>;
+type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
 
 pub struct Proxy {
     configuration: Arc<Configuration>,
@@ -55,10 +55,10 @@ impl Service for Proxy {
                 match self
                     .authentication_filter
                     .is_request_authorized(&config, &req, &self.remote_addr)
-                    {
-                        Ok(_) => self.proxy_request(req, config),
-                        Err(message) => self.error_response(ProxyError::Forbidden),
-                    }
+                {
+                    Ok(_) => self.proxy_request(req, config),
+                    Err(message) => self.error_response(ProxyError::Forbidden),
+                }
             }
             None => self.error_response(ProxyError::NoTargetFound),
         }

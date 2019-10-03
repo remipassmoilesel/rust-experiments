@@ -1,3 +1,4 @@
+use log::{error, info, Level};
 use std::net::SocketAddr;
 use std::sync::Arc;
 
@@ -61,6 +62,7 @@ mod tests {
     use crate::configuration::ServerSection;
 
     use super::*;
+    use hyper::http::HeaderValue;
 
     extern crate log;
     extern crate simple_logger;
@@ -73,6 +75,77 @@ mod tests {
         let req = Request::new(Body::empty());
         let remote_addr = "127.0.0.1:45220".parse().unwrap();
         let config = proxy_sections.get(0).unwrap();
+        let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
+
+        assert_eq!(is_authenticated.is_ok(), true)
+    }
+
+    #[test]
+    fn filter_should_deny_if_no_authorization_found() {
+        setup();
+        let (filter, proxy_sections) = test_auth_filter();
+
+        let req = Request::new(Body::empty());
+        let remote_addr = "127.0.0.1:45220".parse().unwrap();
+        let config = proxy_sections.get(1).unwrap();
+        let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
+
+        assert_eq!(is_authenticated.is_ok(), false)
+    }
+
+    #[test]
+    fn filter_should_deny_if_authorization_is_wrong() {
+        setup();
+        let (filter, proxy_sections) = test_auth_filter();
+
+        let mut req = Request::new(Body::empty());
+        req.headers_mut()
+            .append("Authorization", HeaderValue::from_str("poiuyt").unwrap());
+
+        let remote_addr = "127.0.0.1:45220".parse().unwrap();
+        let config = proxy_sections.get(1).unwrap();
+        let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
+
+        assert_eq!(is_authenticated.is_ok(), false)
+    }
+
+    #[test]
+    fn filter_should_grant_if_authorization_is_correct() {
+        setup();
+        let (filter, proxy_sections) = test_auth_filter();
+
+        let mut req = Request::new(Body::empty());
+        req.headers_mut()
+            .append("Authorization", HeaderValue::from_str("abcde").unwrap());
+
+        let remote_addr = "127.0.0.1:45220".parse().unwrap();
+        let config = proxy_sections.get(1).unwrap();
+        let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
+
+        assert_eq!(is_authenticated.is_ok(), true)
+    }
+
+    #[test]
+    fn filter_should_deny_if_origin_is_wrong() {
+        setup();
+        let (filter, proxy_sections) = test_auth_filter();
+
+        let req = Request::new(Body::empty());
+        let remote_addr = "99.99.99.99:12345".parse().unwrap();
+        let config = proxy_sections.get(2).unwrap();
+        let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
+
+        assert_eq!(is_authenticated.is_ok(), false)
+    }
+
+    #[test]
+    fn filter_should_grant_if_origin_is_correct() {
+        setup();
+        let (filter, proxy_sections) = test_auth_filter();
+
+        let req = Request::new(Body::empty());
+        let remote_addr = "88.88.88.88:12345".parse().unwrap();
+        let config = proxy_sections.get(2).unwrap();
         let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
 
         assert_eq!(is_authenticated.is_ok(), true)
@@ -94,7 +167,7 @@ mod tests {
                 matching_path: String::from("/path-1"),
                 matching_path_regex: Regex::new(&"/path-1").unwrap(),
                 forward_to: String::from("http://localhost:9990"),
-                secret: None,
+                secret: Some(String::from("abcde")),
                 allowed_origins: vec![],
             },
             ProxySection {
@@ -103,7 +176,7 @@ mod tests {
                 matching_path_regex: Regex::new(&"/path-2").unwrap(),
                 forward_to: String::from("http://localhost:10100"),
                 secret: None,
-                allowed_origins: vec![],
+                allowed_origins: vec![String::from("127.0.0.1"), String::from("88.88.88.88")],
             },
         ];
         let config = Configuration {
