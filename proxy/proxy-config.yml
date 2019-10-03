@@ -5,6 +5,11 @@ server:
   authorization_header: "X-Authorization"
 
 proxy:
+  - name: "http-bin"
+    matching_path: "/ip"
+    forward_to: "http://httpbin.org/ip"
+    secret: "105865f3303c269950e0543acb1760dd07ca927d9ab3671d610072797f840dd0"
+
   - name: "doc-1 project-1"
     matching_path: "/elasticsearch/project1-indice1"
     forward_to: "http://localhost:9200"

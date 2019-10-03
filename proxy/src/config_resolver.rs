@@ -77,7 +77,7 @@ mod tests {
                     matching_path_regex: Regex::new(&"/path-1").unwrap(),
                     forward_to: String::from("http://localhost:9990"),
                     secret: None,
-                    allowed_origins: None,
+                    allowed_origins: vec![],
                 },
                 ProxySection {
                     name: Some(String::from("section-2")),
@@ -85,7 +85,7 @@ mod tests {
                     matching_path_regex: Regex::new(&"/path-2").unwrap(),
                     forward_to: String::from("http://localhost:9990"),
                     secret: None,
-                    allowed_origins: None,
+                    allowed_origins: vec![],
                 },
             ],
         }

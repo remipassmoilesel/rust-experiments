@@ -7,6 +7,7 @@ use std::sync::Arc;
 use futures::future;
 use futures::future::IntoFuture;
 use futures::stream::Stream;
+use hyper::{Body, Client, Error, Request, Response, StatusCode, Uri};
 use hyper::client::connect::dns::GaiResolver;
 use hyper::client::connect::HttpConnector;
 use hyper::client::ResponseFuture;
@@ -14,7 +15,6 @@ use hyper::header::HeaderValue;
 use hyper::http::uri::InvalidUri;
 use hyper::rt::Future;
 use hyper::service::Service;
-use hyper::{Body, Client, Error, Request, Response, StatusCode, Uri};
 use log::error;
 use log::info;
 use serde_json::json;
@@ -23,7 +23,7 @@ use crate::authentication::AuthenticationFilter;
 use crate::config_resolver::ProxyConfigResolver;
 use crate::configuration::{Configuration, ProxySection};
 
-type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
+type BoxFuture = Box<dyn Future<Item=Response<Body>, Error=hyper::Error> + Send>;
 
 pub struct Proxy {
     configuration: Arc<Configuration>,
@@ -33,6 +33,7 @@ pub struct Proxy {
     remote_addr: SocketAddr,
 }
 
+#[derive(Debug)]
 pub enum ProxyError {
     Forbidden,
     NoTargetFound,
@@ -53,11 +54,11 @@ impl Service for Proxy {
             Some(config) => {
                 match self
                     .authentication_filter
-                    .is_request_authorized(&req, &config, &self.remote_addr)
-                {
-                    Ok(_) => self.proxy_request(req, config),
-                    Err(message) => self.error_response(ProxyError::Forbidden),
-                }
+                    .is_request_authorized(&config, &req, &self.remote_addr)
+                    {
+                        Ok(_) => self.proxy_request(req, config),
+                        Err(message) => self.error_response(ProxyError::Forbidden),
+                    }
             }
             None => self.error_response(ProxyError::NoTargetFound),
         }
@@ -145,67 +146,47 @@ mod tests {
     extern crate simple_logger;
 
     #[test]
-    fn should_create_correct_proxy_uri_with_query() {
+    fn should_create_correct_target_uri_with_query() {
         setup();
-        let proxy = test_proxy();
+        let (proxy, config) = test_proxy();
 
-        let with_query = proxy
-            .get_target_uri(&Uri::from_str(&"http://domain-1.net/path-2/sub-path-2?query_arg1=val1&query_arg1=val1").unwrap());
-        assert_eq!(with_query.is_ok(), true);
+        let url = &Uri::from_str(&"http://domain-1.net/path-2/sub-path-2?query_arg1=val1&query_arg1=val1").unwrap();
+        let result = proxy.get_target_uri(url, config);
         assert_eq!(
-            with_query.unwrap(),
+            result.unwrap(),
             "http://localhost:10100/path-2/sub-path-2?query_arg1=val1&query_arg1=val1"
         );
     }
 
     #[test]
-    fn should_create_correct_proxy_uri_without_query() {
+    fn should_create_correct_target_uri_without_query() {
         setup();
-        let proxy = test_proxy();
+        let (proxy, config) = test_proxy();
 
-        let with_query = proxy.get_target_uri(&Uri::from_str(&"http://domain-1.net/path-2/sub-path-2").unwrap());
-        assert_eq!(with_query.is_ok(), true);
-        assert_eq!(with_query.unwrap(), "http://localhost:10100/path-2/sub-path-2");
-    }
-
-    #[test]
-    fn should_return_err_if_no_proxy_config_match() {
-        setup();
-        let proxy = test_proxy();
-
-        let with_query = proxy.get_target_uri(&Uri::from_str(&"http://domain-1.net/should-not-match").unwrap());
-        assert_eq!(with_query.is_ok(), false);
+        let url = &Uri::from_str(&"http://domain-1.net/path-2/sub-path-2").unwrap();
+        let result = proxy.get_target_uri(url, config);
+        assert_eq!(result.unwrap(), "http://localhost:10100/path-2/sub-path-2");
     }
 
     fn setup() {
         simple_logger::init();
     }
 
-    fn test_proxy() -> (Proxy, Vec<ProxySection>) {
-        let proxy_sections = vec![
-            ProxySection {
-                name: Some(String::from("section-1")),
-                matching_path: String::from("/path-1"),
-                matching_path_regex: Regex::new(&"/path-1").unwrap(),
-                forward_to: String::from("http://localhost:9990"),
-                secret: None,
-                allowed_origins: None,
-            },
-            ProxySection {
-                name: Some(String::from("section-2")),
-                matching_path: String::from("/path-2"),
-                matching_path_regex: Regex::new(&"/path-2").unwrap(),
-                forward_to: String::from("http://localhost:10100"),
-                secret: None,
-                allowed_origins: None,
-            },
-        ];
+    fn test_proxy() -> (Proxy, ProxySection) {
+        let proxy_section = ProxySection {
+            name: Some(String::from("section-2")),
+            matching_path: String::from("/path-2"),
+            matching_path_regex: Regex::new(&"/path-2").unwrap(),
+            forward_to: String::from("http://localhost:10100"),
+            secret: None,
+            allowed_origins: vec![],
+        };
         let config = Configuration {
             server_section: ServerSection {
                 connection_string: String::from("127.0.0.1:8787"),
                 authorization_header: String::from("Authorization"),
             },
-            proxy_sections,
+            proxy_sections: vec![proxy_section.clone()],
         };
 
         let a_config = Arc::new(config);
@@ -216,6 +197,6 @@ mod tests {
             authentication_filter: AuthenticationFilter::new(a_config.clone()),
             remote_addr: SocketAddr::new(IpAddr::from(Ipv4Addr::new(127, 0, 0, 1)), 43522),
         };
-        (proxy, proxy_sections)
+        (proxy, proxy_section)
     }
 }
