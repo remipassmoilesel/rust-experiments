@@ -33,11 +33,13 @@ pub struct Proxy {
     remote_addr: SocketAddr,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ProxyError {
+    BadAuthorization,
+    BadOrigin,
     Forbidden,
-    NoTargetFound,
     InvalidTargetUrl,
+    NoTargetFound,
 }
 
 impl Service for Proxy {
@@ -47,8 +49,6 @@ impl Service for Proxy {
     type Future = BoxFuture;
 
     fn call(&mut self, req: Request<Self::ReqBody>) -> Self::Future {
-        info!("Proxying request: {:#?}", req);
-
         let proxy_config = self.config_resolver.section_from_uri(req.uri());
         match proxy_config {
             Some(config) => {
@@ -57,7 +57,7 @@ impl Service for Proxy {
                     .is_request_authorized(&config, &req, &self.remote_addr)
                 {
                     Ok(_) => self.proxy_request(req, config),
-                    Err(message) => self.error_response(ProxyError::Forbidden),
+                    Err(err) => self.error_response(err),
                 }
             }
             None => self.error_response(ProxyError::NoTargetFound),
@@ -83,15 +83,13 @@ impl Proxy {
                 let (parts, body) = original_req.into_parts();
                 let mut proxy_req = Request::from_parts(parts, body);
 
+                info!("Proxying to: {}", uri.to_string());
                 *proxy_req.uri_mut() = uri;
 
                 let forward_header = HeaderValue::from_bytes(self.remote_addr.ip().to_string().as_bytes()).unwrap();
                 (*proxy_req.headers_mut()).append("X-Forwarded-For", forward_header);
 
-                info!("Sending request: {:#?}", proxy_req);
-
                 let res = self.client.request(proxy_req);
-
                 return Box::new(res);
             }
             Err(err) => self.error_response(err),
@@ -103,14 +101,19 @@ impl Proxy {
         let query = original_uri.query().map(|q| format!("?{}", q)).unwrap_or(String::from(""));
         let target = format!("{}{}{}", config.forward_to, path, query);
 
-        Uri::from_str(&target).or_else(|invalid_uri| Err(ProxyError::InvalidTargetUrl))
+        Uri::from_str(&target).or_else(|invalid_uri| {
+            error!("Invalid target url: {}", invalid_uri);
+            Err(ProxyError::InvalidTargetUrl)
+        })
     }
 
-    fn error_response(&self, error: ProxyError) -> BoxFuture {
-        let (status, error_message) = match error {
-            ProxyError::NoTargetFound => (StatusCode::FORBIDDEN, "Cannot proxy request"),
-            ProxyError::InvalidTargetUrl => (StatusCode::INTERNAL_SERVER_ERROR, "Cannot proxy request"),
-            ProxyError::Forbidden => (StatusCode::INTERNAL_SERVER_ERROR, "Forbidden"),
+    fn error_response(&self, proxy_error: ProxyError) -> BoxFuture {
+        let (status, error_message) = match proxy_error {
+            ProxyError::BadAuthorization => (StatusCode::FORBIDDEN, "Bad authorization"),
+            ProxyError::BadOrigin => (StatusCode::FORBIDDEN, "Bad origin"),
+            ProxyError::Forbidden => (StatusCode::FORBIDDEN, "Forbidden"),
+            ProxyError::InvalidTargetUrl => (StatusCode::INTERNAL_SERVER_ERROR, "Invalid target url"),
+            ProxyError::NoTargetFound => (StatusCode::NOT_FOUND, "Not found"),
         };
 
         let response_body = json!({ "message": error_message }).to_string();

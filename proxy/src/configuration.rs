@@ -87,7 +87,7 @@ impl ProxySection {
         let secret = yaml_to_string_option("secret", yaml);
 
         let allowed_origins_str = yaml_to_string_option("allowed_origins", yaml).unwrap_or(String::from(""));
-        let allowed_origins: Vec<String> = allowed_origins_str.split(",").map(|s| String::from(s)).collect();
+        let allowed_origins: Vec<String> = allowed_origins_str.split(",").filter(|s| s.len() > 0).map(|s| String::from(s)).collect();
 
         ProxySection {
             name,

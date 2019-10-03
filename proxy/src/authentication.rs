@@ -1,8 +1,8 @@
-use log::{error, info, Level};
 use std::net::SocketAddr;
 use std::sync::Arc;
 
 use hyper::{Body, Request};
+use log::{error, info, Level};
 
 use crate::configuration::{Configuration, ProxySection};
 use crate::proxy::ProxyError;
@@ -22,31 +22,40 @@ impl AuthenticationFilter {
         req: &Request<Body>,
         remote_addr: &SocketAddr,
     ) -> Result<(), ProxyError> {
-        let is_origin_allowed = self.is_origin_allowed(config, remote_addr);
-        let is_authenticated = self.is_authenticated(config, req);
+        let origin_check = self.is_origin_allowed(config, remote_addr);
+        let authentication_check = self.is_authenticated(config, req);
 
-        let request_allowed = is_origin_allowed && is_authenticated;
-        match request_allowed {
-            true => Ok(()),
-            false => Err(ProxyError::Forbidden),
+        let error = origin_check.err().or(authentication_check.err());
+        match error {
+            Some(err) => Err(err),
+            None => Ok(()),
         }
     }
 
-    fn is_origin_allowed(&self, config: &ProxySection, remote_addr: &SocketAddr) -> bool {
+    fn is_origin_allowed(&self, config: &ProxySection, remote_addr: &SocketAddr) -> Result<(), ProxyError> {
         match config.allowed_origins.len() {
-            0 => true,
-            _ => config.allowed_origins.contains(&remote_addr.ip().to_string()),
+            0 => Ok(()),
+            _ => match config.allowed_origins.contains(&remote_addr.ip().to_string()) {
+                true => Ok(()),
+                false => Err(ProxyError::BadOrigin),
+            },
         }
     }
 
-    fn is_authenticated(&self, config: &ProxySection, req: &Request<Body>) -> bool {
+    fn is_authenticated(&self, config: &ProxySection, req: &Request<Body>) -> Result<(), ProxyError> {
         match &config.secret {
-            None => true,
-            Some(route_secret) => req
-                .headers()
-                .get(&self.configuration.server_section.authorization_header)
-                .filter(|client_secret| client_secret.as_bytes() == route_secret.as_bytes())
-                .is_some(),
+            None => Ok(()),
+            Some(route_secret) => {
+                let authenticated = req
+                    .headers()
+                    .get(&self.configuration.server_section.authorization_header)
+                    .filter(|client_secret| client_secret.as_bytes() == route_secret.as_bytes())
+                    .is_some();
+                match authenticated {
+                    true => Ok(()),
+                    false => Err(ProxyError::BadAuthorization),
+                }
+            }
         }
     }
 }
@@ -56,13 +65,13 @@ mod tests {
     use std::net::{IpAddr, Ipv4Addr, SocketAddrV4, ToSocketAddrs};
     use std::str::FromStr;
 
+    use hyper::http::HeaderValue;
     use log::{error, info, Level};
     use regex::Regex;
 
     use crate::configuration::ServerSection;
 
     use super::*;
-    use hyper::http::HeaderValue;
 
     extern crate log;
     extern crate simple_logger;
@@ -90,7 +99,7 @@ mod tests {
         let config = proxy_sections.get(1).unwrap();
         let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
 
-        assert_eq!(is_authenticated.is_ok(), false)
+        assert_eq!(is_authenticated.err().unwrap(), ProxyError::BadAuthorization)
     }
 
     #[test]
@@ -106,7 +115,7 @@ mod tests {
         let config = proxy_sections.get(1).unwrap();
         let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
 
-        assert_eq!(is_authenticated.is_ok(), false)
+        assert_eq!(is_authenticated.err().unwrap(), ProxyError::BadAuthorization)
     }
 
     #[test]
@@ -135,7 +144,7 @@ mod tests {
         let config = proxy_sections.get(2).unwrap();
         let is_authenticated = filter.is_request_authorized(config, &req, &remote_addr);
 
-        assert_eq!(is_authenticated.is_ok(), false)
+        assert_eq!(is_authenticated.err().unwrap(), ProxyError::BadOrigin)
     }
 
     #[test]
@@ -162,6 +171,7 @@ mod tests {
                 secret: None,
                 allowed_origins: vec![],
             },
+            // With credentials
             ProxySection {
                 name: Some(String::from("section-1")),
                 matching_path: String::from("/path-1"),
@@ -170,6 +180,7 @@ mod tests {
                 secret: Some(String::from("abcde")),
                 allowed_origins: vec![],
             },
+            // With origin
             ProxySection {
                 name: Some(String::from("section-2")),
                 matching_path: String::from("/path-2"),
