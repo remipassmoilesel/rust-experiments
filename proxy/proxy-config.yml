@@ -18,3 +18,5 @@ proxy:
     matching_path: "/protected_with_origin"
     forward_to: "http://localhost:9201"
     allowed_origins: "88.88.88.88"
+    # allowed_origins: "127.0.0.1"
+    secret: "abcdef"

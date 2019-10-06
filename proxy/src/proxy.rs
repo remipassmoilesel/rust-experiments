@@ -19,15 +19,13 @@ use log::error;
 use log::info;
 use serde_json::json;
 
-use crate::authentication::AuthenticationFilter;
-use crate::config_resolver::ProxyConfigResolver;
+use crate::authentication_filter::AuthenticationFilter;
 use crate::configuration::{Configuration, ProxySection};
 
 type BoxFuture = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
 
 pub struct Proxy {
     configuration: Arc<Configuration>,
-    config_resolver: ProxyConfigResolver,
     client: Client<HttpConnector<GaiResolver>, Body>,
     authentication_filter: AuthenticationFilter,
     remote_addr: SocketAddr,
@@ -49,7 +47,7 @@ impl Service for Proxy {
     type Future = BoxFuture;
 
     fn call(&mut self, req: Request<Self::ReqBody>) -> Self::Future {
-        let proxy_config = self.config_resolver.section_from_uri(req.uri());
+        let proxy_config = self.configuration.section_from_uri(req.uri());
         match proxy_config {
             Some(config) => {
                 match self
@@ -69,7 +67,6 @@ impl Proxy {
     pub fn new(configuration: Arc<Configuration>, authentication_filter: AuthenticationFilter, remote_addr: SocketAddr) -> Self {
         Proxy {
             configuration: configuration.clone(),
-            config_resolver: ProxyConfigResolver::new(configuration),
             client: Client::new(),
             authentication_filter,
             remote_addr,
@@ -195,7 +192,6 @@ mod tests {
         let a_config = Arc::new(config);
         let proxy = Proxy {
             configuration: a_config.clone(),
-            config_resolver: ProxyConfigResolver::new(a_config.clone()),
             client: Client::new(),
             authentication_filter: AuthenticationFilter::new(a_config.clone()),
             remote_addr: SocketAddr::new(IpAddr::from(Ipv4Addr::new(127, 0, 0, 1)), 43522),

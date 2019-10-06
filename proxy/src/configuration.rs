@@ -4,8 +4,11 @@ use core::fmt;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::fs;
+use std::sync::Arc;
 
 use hyper::Uri;
+use log::error;
+use log::info;
 use regex::Regex;
 use yaml_rust::YamlLoader;
 
@@ -65,6 +68,17 @@ impl Configuration {
             proxy_sections,
         })
     }
+
+    pub fn section_from_uri(&self, uri: &Uri) -> Option<ProxySection> {
+        let url = format!("{}{}", &uri.host().unwrap_or_else(|| ""), &uri.path());
+        let matching: Vec<&ProxySection> = self
+            .proxy_sections
+            .iter()
+            .filter(|sec| sec.matching_path_regex.is_match(&url))
+            .collect();
+
+        matching.get(0).map(|refr| (**refr).clone())
+    }
 }
 
 // TODO: some parameters must be mandatory
@@ -87,7 +101,11 @@ impl ProxySection {
         let secret = yaml_to_string_option("secret", yaml);
 
         let allowed_origins_str = yaml_to_string_option("allowed_origins", yaml).unwrap_or(String::from(""));
-        let allowed_origins: Vec<String> = allowed_origins_str.split(",").filter(|s| s.len() > 0).map(|s| String::from(s)).collect();
+        let allowed_origins: Vec<String> = allowed_origins_str
+            .split(",")
+            .filter(|s| s.len() > 0)
+            .map(|s| String::from(s))
+            .collect();
 
         ProxySection {
             name,
@@ -135,5 +153,67 @@ impl Error for ConfigurationLoadError {}
 impl Display for ConfigurationLoadError {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.message)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use log::{error, info, Level};
+    use regex::Regex;
+
+    use crate::configuration::ServerSection;
+
+    use super::*;
+
+    extern crate log;
+    extern crate simple_logger;
+
+    #[test]
+    fn should_match_configuration_2() {
+        setup();
+        let config = test_config();
+        let section = config.section_from_uri(&Uri::from_str("http://localhost:9990/path-2").unwrap());
+        assert_eq!(section.is_some(), true);
+        assert_eq!(section.unwrap().name, Some(String::from("section-2")));
+    }
+
+    #[test]
+    fn should_not_match_configuration() {
+        let config = test_config();
+        let section = config.section_from_uri(&Uri::from_str("nothing-should-match").unwrap());
+        assert_eq!(section.is_none(), true);
+    }
+
+    fn setup() {
+        simple_logger::init();
+    }
+
+    fn test_config() -> Configuration {
+        Configuration {
+            server_section: ServerSection {
+                connection_string: String::from("127.0.0.1:8787"),
+                authorization_header: String::from("Authorization"),
+            },
+            proxy_sections: vec![
+                ProxySection {
+                    name: Some(String::from("section-1")),
+                    matching_path: String::from("/path-1"),
+                    matching_path_regex: Regex::new(&"/path-1").unwrap(),
+                    forward_to: String::from("http://localhost:9990"),
+                    secret: None,
+                    allowed_origins: vec![],
+                },
+                ProxySection {
+                    name: Some(String::from("section-2")),
+                    matching_path: String::from("/path-2"),
+                    matching_path_regex: Regex::new(&"/path-2").unwrap(),
+                    forward_to: String::from("http://localhost:9990"),
+                    secret: None,
+                    allowed_origins: vec![],
+                },
+            ],
+        }
     }
 }

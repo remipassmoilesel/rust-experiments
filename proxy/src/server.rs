@@ -14,7 +14,7 @@ use hyper::Server as HyperServer;
 
 use log::error;
 
-use crate::authentication::AuthenticationFilter;
+use crate::authentication_filter::AuthenticationFilter;
 use crate::configuration::Configuration;
 use crate::proxy::Proxy;
 
