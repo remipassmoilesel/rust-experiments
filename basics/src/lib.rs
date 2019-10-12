@@ -1,9 +1,11 @@
 use fundamentals::*;
+use cli::*;
 
 pub mod fundamentals;
 pub mod std_samples;
 pub mod testing;
 pub mod tokio_samples;
+pub mod cli;
 
 pub fn main() {
     // annotations::main();
@@ -26,4 +28,5 @@ pub fn main() {
     // ref_cell::main();
     // threads::main();
     oop::main();
+    ncurses_basics::main();
 }
