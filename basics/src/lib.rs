@@ -27,6 +27,7 @@ pub fn main() {
     // reference_counters::main();
     // ref_cell::main();
     // threads::main();
-    oop::main();
-    ncurses_basics::main();
+    // oop::main();
+    // ncurses_basics::main();
+    commands::main();
 }
