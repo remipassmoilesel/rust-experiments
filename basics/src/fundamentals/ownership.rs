@@ -1,9 +1,8 @@
 pub fn main() {
-
     // MOVE
 
     let s1 = String::from("hello");
-    let s2 = s1;
+    let _s2 = s1;
 
     // println!("{}, world!", s1); // s1 is not valid anymore, because value moved to s2
 
@@ -50,8 +49,7 @@ pub fn main() {
     let mut a = String::from("Part 1");
     mutate(&mut a); // only one mutable reference per scope is allowed
     {
-        let second_mutable_ref = &mut a;
+        let _second_mutable_ref = &mut a;
     }
     println!("{}", a);
-
 }

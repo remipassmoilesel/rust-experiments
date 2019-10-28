@@ -1,0 +1,22 @@
+---
+
+server:
+  connection_string: "127.0.0.1:7878"
+  authorization_header: "X-Authorization"
+
+proxy:
+  - name: "public section"
+    matching_path: "/public"
+    forward_to: "http://localhost:9201"
+
+  - name: "section protected by authorization"
+    matching_path: "/protected_with_authorization"
+    forward_to: "http://localhost:9201"
+    secret: "abcdef"
+
+  - name: "section protected by origin"
+    matching_path: "/protected_with_origin"
+    forward_to: "http://localhost:9201"
+    allowed_origins: "88.88.88.88"
+    # allowed_origins: "127.0.0.1"
+    secret: "abcdef"

@@ -1,14 +1,12 @@
 use fundamentals::*;
-use testing::calculator::*;
-use tokio_samples::*;
-use std_samples::*;
 
 pub mod fundamentals;
+pub mod std_samples;
 pub mod testing;
 pub mod tokio_samples;
-pub mod std_samples;
 
 pub fn main() {
+    // annotations::main();
     // conditions::main();
     // variables::main();
     // loops::main();
@@ -20,9 +18,16 @@ pub fn main() {
     // module_system::main();
     // collections::main();
     // client::main();
-    //error_handling::main();
-    //args::main();
-    //files::main();
+    // error_handling::main();
+    // lifetime::main();
+    // closures::main();
+    // iterators::main();
+    // box_deref_drop::main();
+    // reference_counters::main();
+    // ref_cell::main();
+    // threads::main();
+    // args::main();
+    // files::main();
     genericity::main();
     traits::main();
 }

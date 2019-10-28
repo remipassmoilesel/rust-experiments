@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::ErrorKind as FileErrorKind;
 
 pub fn main() {
-
     // Open a file
 
     let f = File::open("not-found.txt");
@@ -12,8 +11,8 @@ pub fn main() {
         Ok(file) => println!("File found: \n\n{:?}", file),
         Err(error) => match error.kind() {
             FileErrorKind::NotFound => eprintln!("File not found: {:?}", error.kind()),
-            _ => eprintln!("Unknown error: {:?}", error)
-        }
+            _ => eprintln!("Unknown error: {:?}", error),
+        },
     }
 
     // More concise way to do the same thing

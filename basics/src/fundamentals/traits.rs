@@ -93,7 +93,9 @@ pub fn main() {
     // Where clause to get better method signatures
     fn some_function<T, U>(t: T, u: U) -> i32
         where T: Display + Clone,
-              U: Clone + Debug {}
+              U: Clone + Debug {
+        1
+    }
 
     // return a trait, but we can return a single type only due to compiler limitations
     fn returns_summarizable() -> impl Summary {

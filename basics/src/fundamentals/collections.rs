@@ -1,8 +1,7 @@
 pub fn main() {
-
     // Immutable empty vector, immutable vector
-    let v: Vec<i32> = Vec::new();
-    let v = vec![1, 2, 3];
+    let _v: Vec<i32> = Vec::new();
+    let _v = vec![1, 2, 3];
 
     // Simple mutation
     let mut v = Vec::new();
@@ -10,7 +9,7 @@ pub fn main() {
 
     // Scope
     {
-        let v = vec![1, 2, 3, 4];
+        let _v = vec![1, 2, 3, 4];
         // do stuff with v
     } // <- v goes out of scope and is freed here
 
@@ -60,7 +59,7 @@ pub fn main() {
         Text(String),
     }
 
-    let row = vec![
+    let _row = vec![
         SpreadsheetCell::Int(3),
         SpreadsheetCell::Text(String::from("blue")),
         SpreadsheetCell::Float(10.12),

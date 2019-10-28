@@ -18,6 +18,7 @@ pub mod front_of_house {
 
 fn serve_order() {}
 
+#[allow(dead_code)]
 mod back_of_house {
     fn fix_incorrect_order() {
         cook_order();
@@ -28,7 +29,6 @@ mod back_of_house {
 }
 
 pub fn main() {
-
     // Module system components:
     //  - Packages: A Cargo feature that lets you build, test, and share crates
     //  - Crates: A tree of modules that produces a library or executable
@@ -39,45 +39,45 @@ pub fn main() {
 
     add_to_waitlist();
 
-//
-//    Use several objects with the same name:
-//
-//        use std::fmt::Result as FmtResult;
-//        use std::io::Result as IoResult;
-//
-//        fn function1() -> FmtResult {
-//            // --snip--
-//        }
-//
-//        fn function2() -> IoResult<()> {
-//            // --snip--
-//        }
-//
-//    Or:
-//
-//        use std::fmt;
-//        use std::io;
-//
-//        fn function1() -> fmt::Result {
-//            // --snip--
-//        }
-//
-//        fn function2() -> io::Result<()> {
-//            // --snip--
-//        }
-//
-//
-//        Nested paths, that:
-//
-//        use std::{cmp::Ordering, io};
-//        use std::io::{self, Write};
-//
-//        ...is equivalent to that
-//
-//        use std::cmp::Ordering;
-//        use std::io;
-//
-//        Glob operators:
-//        use std::collections::*;
-//
+    //
+    //    Use several objects with the same name:
+    //
+    //        use std::fmt::Result as FmtResult;
+    //        use std::io::Result as IoResult;
+    //
+    //        fn function1() -> FmtResult {
+    //            // --snip--
+    //        }
+    //
+    //        fn function2() -> IoResult<()> {
+    //            // --snip--
+    //        }
+    //
+    //    Or:
+    //
+    //        use std::fmt;
+    //        use std::io;
+    //
+    //        fn function1() -> fmt::Result {
+    //            // --snip--
+    //        }
+    //
+    //        fn function2() -> io::Result<()> {
+    //            // --snip--
+    //        }
+    //
+    //
+    //        Nested paths, that:
+    //
+    //        use std::{cmp::Ordering, io};
+    //        use std::io::{self, Write};
+    //
+    //        ...is equivalent to that
+    //
+    //        use std::cmp::Ordering;
+    //        use std::io;
+    //
+    //        Glob operators:
+    //        use std::collections::*;
+    //
 }
