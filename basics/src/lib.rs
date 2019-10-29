@@ -19,6 +19,7 @@ pub fn main() {
     // enums::main();
     // module_system::main();
     // collections::main();
+    // client::main();
     // error_handling::main();
     // lifetime::main();
     // closures::main();
@@ -29,5 +30,9 @@ pub fn main() {
     // threads::main();
     // oop::main();
     // ncurses_basics::main();
+    // args::main();
+    // files::main();
+    // genericity::main();
+    // traits::main();
     commands::main();
 }
