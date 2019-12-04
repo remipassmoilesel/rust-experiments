@@ -38,4 +38,13 @@ pub fn main() {
     message1.call();
     let message2 = Message::ChangeColor(255, 255, 255);
     message2.call();
+
+    // Destructuring in let
+
+    pub enum ShellError {
+        GenericError { message: String },
+    }
+
+    let error = ShellError::GenericError { message: String::from_str("Error message") };
+    let ShellError::GenericError { message } = error;
 }
