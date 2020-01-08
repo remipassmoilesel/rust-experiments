@@ -7,6 +7,7 @@ pub mod enums;
 pub mod error_handling;
 pub mod functions;
 pub mod genericity;
+pub mod iter;
 pub mod iterators;
 pub mod lifetime;
 pub mod loops;

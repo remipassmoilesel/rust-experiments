@@ -1,9 +1,11 @@
 use fundamentals::*;
+use git::*;
 
 pub mod fundamentals;
 pub mod std_samples;
 pub mod testing;
 pub mod tokio_samples;
+pub mod git;
 
 pub fn main() {
     // annotations::main();
@@ -28,6 +30,10 @@ pub fn main() {
     // threads::main();
     // args::main();
     // files::main();
-    genericity::main();
-    traits::main();
+    // genericity::main();
+    // traits::main();
+    // git_experiments::main();
+    // closures::main();
+    iter::main();
+
 }

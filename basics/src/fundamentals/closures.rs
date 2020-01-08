@@ -69,7 +69,7 @@ pub fn main() {
 
     assert_eq!(capture(5), 17);
 
-    // Force move of value in closures (can be useful for threads
+    // A closure can use variables without taking ownership
 
     let param = vec![2, 4];
     let closure_that_do_not_take_ownership = |vec: Vec<i32>| -> Vec<i32> {
@@ -81,6 +81,8 @@ pub fn main() {
 
     closure_that_do_not_take_ownership(vec![1, 2, 3, 4, 5]);
     println!("{:?}", param);
+
+    // 'move' force taking ownership in closures (can be useful for multithreading)
 
     let param = vec![2, 4];
     let closure_that_take_ownership = move |vec: Vec<i32>| -> Vec<i32> {
