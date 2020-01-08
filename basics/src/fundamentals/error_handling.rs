@@ -1,5 +1,8 @@
+use core::option;
 use std::fs::File;
 use std::io::ErrorKind as FileErrorKind;
+
+use regex::Regex;
 
 pub fn main() {
     // For unrecoverable, will clean memory and display an error message
@@ -72,7 +75,7 @@ pub fn main() {
         _ => (),
     }
 
-    // propagating errors wit a ?
+    // propagating errors with a ?
 
     fn propagate_error_with_interrogation_mark() -> Result<i32, UselessErrorKind> {
         let _f = process_number(9);
@@ -83,5 +86,22 @@ pub fn main() {
     match propagate_error_with_interrogation_mark() {
         Err(err) => println!("ERROR: {:?}", err),
         _ => (),
+    }
+
+    // Custom error mapping with a ?
+
+    enum CustomErrorMapping {
+        InvalidFormat,
+    }
+
+    impl From<regex::Error> for CustomErrorMapping {
+        fn from(error: regex::Error) -> CustomErrorMapping {
+            CustomErrorMapping::InvalidFormat
+        }
+    }
+
+    fn custom_error_mapping() -> Result<(), CustomErrorMapping> {
+        let date_regex = Regex::new(r" *Date: *(\S+)")?;
+        Ok(())
     }
 }
